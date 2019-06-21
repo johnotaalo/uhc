@@ -27,6 +27,7 @@
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'utilization' }">Utilization</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'serviceDelivery' }">Survey Delivery</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'financialHealth' }">Financial Health</router-link></li>
+						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'uploadData' }">Upload Data</router-link></li>
 					</ul>
 
 				</div>
