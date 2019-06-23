@@ -4,7 +4,8 @@
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-require('./bootstrap');require('highcharts-vue');
+require('./bootstrap');
+require('highcharts-vue');
 
 
 window.Vue = require('vue');
@@ -53,6 +54,7 @@ import Enrollment from './views/dashboard/Enrollment'
 import Utilization from './views/dashboard/Utilization'
 import ServiceDelivery from './views/dashboard/ServiceDelivery'
 import FinancialHealth from './views/dashboard/FinancialHealth'
+import UploadData from './views/dashboard/UploadData'
 
  const router = new VueRouter({
  	mode: 'history',
@@ -60,8 +62,8 @@ import FinancialHealth from './views/dashboard/FinancialHealth'
  	routes: [
 	 	{
 	 		path: '/',
-	 		name: 'home',
-	 		component: Home
+	 		name: 'enrollment',
+	 		component: Enrollment
 	 	},
 	 	{
 	 		path: '/enrollment',
@@ -82,6 +84,11 @@ import FinancialHealth from './views/dashboard/FinancialHealth'
 	 		path: '/financial-health',
 	 		name: 'financialHealth',
 	 		component: FinancialHealth
+	 	},
+	 	{
+	 		path: '/upload-data',
+	 		name: 'uploadData',
+	 		component: UploadData
 	 	}
  	]
  });
