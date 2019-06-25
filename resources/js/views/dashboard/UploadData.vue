@@ -74,7 +74,7 @@
 					},
 					success: function(){
 						// this.isLoading = false
-						location.reload();
+						// location.reload();
 					}
 				}
 			}
