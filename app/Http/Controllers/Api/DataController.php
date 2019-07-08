@@ -74,15 +74,18 @@ class DataController extends Controller
             );
 
             foreach ($dates as $key => $date) {
-                $org_data = [
-                    'upload_id'                 =>  $upload->id,
-                    'organization_id'           =>  $org->id,
-                    'data_id'                   =>  $df->id,
-                    'date'                      =>  date('Y-m-d', strtotime($date)),
-                    'number'                    =>  $d[$key]
-                ];
+                if ($d[$key != ""] && $d[$key] != null) {
+                    $org_data = [
+                        'upload_id'                 =>  $upload->id,
+                        'organization_id'           =>  $org->id,
+                        'data_id'                   =>  $df->id,
+                        'date'                      =>  date('Y-m-d', strtotime($date)),
+                        'number'                    =>  $d[$key]
+                    ];
 
-                OrgData::create($org_data);
+                    OrgData::create($org_data);
+                }
+                
             }
 
         }
