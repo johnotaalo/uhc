@@ -274,6 +274,12 @@
 <script type="text/javascript">
 	export default {
 		data(){
+			let colors = {
+				blue: "#4472c4",
+				orange: "#ed7d31",
+				pink: "#c2185b",
+				green: "#43a047"
+			};
 			return {
 				options: [
 					{ value: 'national', text: 'National' },
@@ -282,6 +288,7 @@
 					{ value: 'national', text: 'Machakos' },
 					{ value: 'national', text: 'Nyeri' },
 				],
+				colors: colors,
 				periods: [
 					{ value: 'current-month', text: 'Current Month' },
 					{ value: 'average', text: 'Average over pilot period' },
@@ -327,16 +334,20 @@
 					    },
 					    series: [{
 					        name: 'January',
-					        data: [5000, 6000]
+					        data: [5000, 6000],
+					        color: colors.blue
 					    }, {
 					        name: 'February',
-					        data: [3000, 2000]
+					        data: [3000, 2000],
+					        color: colors.orange
 					    }, {
 					        name: 'March',
-					        data: [3000, 4000]
+					        data: [3000, 4000],
+					        color: colors.pink
 					    }, {
 					        name: 'April',
-					        data: [1000, 1500]
+					        data: [1000, 1500],
+					        color: colors.green
 					    }]
 					},
 					pneumonia: {
@@ -361,13 +372,16 @@
 						},
 						series: [{
 							name: "Cases",
-							data: [ 1000, 3000, 1500, 1780 ]
+							data: [ 1000, 3000, 1500, 1780 ],
+							color: colors.blue
 						}, {
 							name: "Amox DT set to expire",
-							data: [ 1500, 250, 0, 0 ]
+							data: [ 1500, 250, 0, 0 ],
+							color: colors.orange
 						}, {
 							name: "Amox DT Available",
-							data: [ 3000, 4000, 750, 2500 ]
+							data: [ 3000, 4000, 750, 2500 ],
+							color: colors.pink
 						}]
 					},
 					pneumoniaLevel: {
@@ -391,10 +405,12 @@
 						},
 						series: [{
 							name: "Total Facilities",
-							data: [ 1000, 3000, 1500 ]
+							data: [ 1000, 3000, 1500 ],
+							color: colors.blue
 						}, {
 							name: "Failities with Pulse Oximeter",
-							data: [ 1500, 250, 300]
+							data: [ 1500, 250, 300],
+							color: colors.orange
 						}]
 					}
 				},
@@ -539,9 +555,12 @@
 				    series: [{
 				        name: 'Positions Filled',
 				        data: [5000, 6000, 3000, 4000]
+				        ,
+							color: this.colors.blue
 				    }, {
 				        name: 'Positions Available',
-				        data: [3000, 1000, 1000, 1500]
+				        data: [3000, 1000, 1000, 1500],
+						color: this.colors.orange
 				    }]
 				}
 			},
@@ -584,10 +603,12 @@
 				    },
 				    series: [{
 				        name: 'Commodities Received',
-				        data: [15, 22, 15, 15]
+				        data: [15, 22, 15, 15],
+				        color: this.colors.blue
 				    }, {
 				        name: 'Commodies Not Received',
-				        data: [1, 22, 3, 7]
+				        data: [1, 22, 3, 7],
+				        color: this.colors.orange
 				    }]
 				}
 			}

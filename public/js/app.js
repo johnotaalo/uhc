@@ -2272,9 +2272,17 @@ __webpack_require__.r(__webpack_exports__);
     CountyBudget: _components_graphs_CountyBudget__WEBPACK_IMPORTED_MODULE_0__["default"]
   },
   data: function data() {
+    var colors = {
+      blue: "#4472c4",
+      orange: "#ed7d31",
+      pink: "#c2185b",
+      green: "#43a047",
+      red: "#e53935"
+    };
     return {
       counties: ["Isiolo", "Kisumu", "Machakos", "Nyeri"],
-      priorities: ["Medicines", "Equipment", "Operations", "Human Resources", "Community Health"]
+      priorities: ["Medicines", "Equipment", "Operations", "Human Resources", "Community Health"],
+      colors: colors
     };
   },
   computed: {
@@ -2317,10 +2325,12 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Budget Utilized',
-          data: [10000, 22000, 10500, 1500]
+          data: [10000, 22000, 10500, 1500],
+          color: this.colors.blue
         }, {
           name: 'Budget Remaining',
-          data: [20000, 22000, 3000, 700]
+          data: [20000, 22000, 3000, 700],
+          color: this.colors.orange
         }]
       };
     },
@@ -2363,10 +2373,12 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Budget Utilized',
-          data: [10000, 10000, 30500, 1500, 2300]
+          data: [10000, 10000, 30500, 1500, 2300],
+          color: this.colors.blue
         }, {
           name: 'Budget Remaining',
-          data: [20000, 12000, 15000, 7000, 2500]
+          data: [20000, 12000, 15000, 7000, 2500],
+          color: this.colors.orange
         }]
       };
     },
@@ -2380,15 +2392,22 @@ __webpack_require__.r(__webpack_exports__);
           data[county] = [];
         }
 
+        var colorsArr = _.map(_this.colors, function (color) {
+          return color;
+        });
+
+        var k = 0;
+
         _.forOwn(_this.priorities, function (priority) {
           var obj = {};
           obj.name = priority;
           obj.y = _.random(100000, 10000000);
+          obj.color = colorsArr[k];
           data[county].push(obj);
+          k++;
         });
       });
 
-      console.log(data);
       return data;
     }
   }
@@ -2680,6 +2699,12 @@ __webpack_require__.r(__webpack_exports__);
 //
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
+    var colors = {
+      blue: "#4472c4",
+      orange: "#ed7d31",
+      pink: "#c2185b",
+      green: "#43a047"
+    };
     return {
       options: [{
         value: 'national',
@@ -2697,6 +2722,7 @@ __webpack_require__.r(__webpack_exports__);
         value: 'national',
         text: 'Nyeri'
       }],
+      colors: colors,
       periods: [{
         value: 'current-month',
         text: 'Current Month'
@@ -2745,16 +2771,20 @@ __webpack_require__.r(__webpack_exports__);
           },
           series: [{
             name: 'January',
-            data: [5000, 6000]
+            data: [5000, 6000],
+            color: colors.blue
           }, {
             name: 'February',
-            data: [3000, 2000]
+            data: [3000, 2000],
+            color: colors.orange
           }, {
             name: 'March',
-            data: [3000, 4000]
+            data: [3000, 4000],
+            color: colors.pink
           }, {
             name: 'April',
-            data: [1000, 1500]
+            data: [1000, 1500],
+            color: colors.green
           }]
         },
         pneumonia: {
@@ -2774,13 +2804,16 @@ __webpack_require__.r(__webpack_exports__);
           },
           series: [{
             name: "Cases",
-            data: [1000, 3000, 1500, 1780]
+            data: [1000, 3000, 1500, 1780],
+            color: colors.blue
           }, {
             name: "Amox DT set to expire",
-            data: [1500, 250, 0, 0]
+            data: [1500, 250, 0, 0],
+            color: colors.orange
           }, {
             name: "Amox DT Available",
-            data: [3000, 4000, 750, 2500]
+            data: [3000, 4000, 750, 2500],
+            color: colors.pink
           }]
         },
         pneumoniaLevel: {
@@ -2800,10 +2833,12 @@ __webpack_require__.r(__webpack_exports__);
           },
           series: [{
             name: "Total Facilities",
-            data: [1000, 3000, 1500]
+            data: [1000, 3000, 1500],
+            color: colors.blue
           }, {
             name: "Failities with Pulse Oximeter",
-            data: [1500, 250, 300]
+            data: [1500, 250, 300],
+            color: colors.orange
           }]
         }
       },
@@ -2953,10 +2988,12 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Positions Filled',
-          data: [5000, 6000, 3000, 4000]
+          data: [5000, 6000, 3000, 4000],
+          color: this.colors.blue
         }, {
           name: 'Positions Available',
-          data: [3000, 1000, 1000, 1500]
+          data: [3000, 1000, 1000, 1500],
+          color: this.colors.orange
         }]
       };
     },
@@ -2999,10 +3036,12 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Commodities Received',
-          data: [15, 22, 15, 15]
+          data: [15, 22, 15, 15],
+          color: this.colors.blue
         }, {
           name: 'Commodies Not Received',
-          data: [1, 22, 3, 7]
+          data: [1, 22, 3, 7],
+          color: this.colors.orange
         }]
       };
     }
@@ -87821,14 +87860,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!**********************************************************!*\
   !*** ./resources/js/views/dashboard/ServiceDelivery.vue ***!
   \**********************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _ServiceDelivery_vue_vue_type_template_id_2006013f___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./ServiceDelivery.vue?vue&type=template&id=2006013f& */ "./resources/js/views/dashboard/ServiceDelivery.vue?vue&type=template&id=2006013f&");
 /* harmony import */ var _ServiceDelivery_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./ServiceDelivery.vue?vue&type=script&lang=js& */ "./resources/js/views/dashboard/ServiceDelivery.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _ServiceDelivery_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _ServiceDelivery_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -87858,7 +87898,7 @@ component.options.__file = "resources/js/views/dashboard/ServiceDelivery.vue"
 /*!***********************************************************************************!*\
   !*** ./resources/js/views/dashboard/ServiceDelivery.vue?vue&type=script&lang=js& ***!
   \***********************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

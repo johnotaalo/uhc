@@ -116,9 +116,17 @@
 	export default {
 		components: {CountyBudget},
 		data(){
+			let colors = {
+				blue: "#4472c4",
+				orange: "#ed7d31",
+				pink: "#c2185b",
+				green: "#43a047",
+				red: "#e53935"
+			};
 			return {
 				counties: ["Isiolo", "Kisumu", "Machakos", "Nyeri"],
-				priorities: ["Medicines", "Equipment", "Operations", "Human Resources", "Community Health"]
+				priorities: ["Medicines", "Equipment", "Operations", "Human Resources", "Community Health"],
+				colors: colors
 			}
 		},
 		computed: {
@@ -161,10 +169,12 @@
 				    },
 				    series: [{
 				        name: 'Budget Utilized',
-				        data: [10000, 22000, 10500, 1500]
+				        data: [10000, 22000, 10500, 1500],
+				        color: this.colors.blue
 				    }, {
 				        name: 'Budget Remaining',
-				        data: [20000, 22000, 3000, 700]
+				        data: [20000, 22000, 3000, 700],
+				        color: this.colors.orange
 				    }]
 				}
 			},
@@ -207,10 +217,12 @@
 				    },
 				    series: [{
 				        name: 'Budget Utilized',
-				        data: [10000, 10000, 30500, 1500, 2300]
+				        data: [10000, 10000, 30500, 1500, 2300],
+				        color: this.colors.blue
 				    }, {
 				        name: 'Budget Remaining',
-				        data: [20000, 12000, 15000, 7000, 2500]
+				        data: [20000, 12000, 15000, 7000, 2500],
+				        color: this.colors.orange
 				    }]
 				}
 			},
@@ -220,17 +232,26 @@
 					if(typeof data[county] == "undefined"){
 						data[county] = [];
 					}
+
+					var colorsArr = _.map(this.colors, (color)=>{
+						return color
+					})
+
+					var k = 0;
 					_.forOwn(this.priorities, (priority) => {
 						var obj = {};
 
 						obj.name = priority
 						obj.y = _.random(100000, 10000000)
+						obj.color = colorsArr[k]
 
 						data[county].push(obj)
+
+						k++
 					})
 
 				})
-				console.log(data)
+
 				return data;
 			}
 		}
