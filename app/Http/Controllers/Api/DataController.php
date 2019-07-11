@@ -24,8 +24,18 @@ class DataController extends Controller
 
     function getUploadComponentData(){
     	return [
-    		'counties' => County::all()
+    		'counties' => County::where('is_pilot', 1)->get()
     	];
+    }
+
+    function getCounties(Request $request){
+        return County::all();
+    }
+
+    function updatePilotCounties(Request $request){
+        $req = $request->only('counties');
+        
+        return $counties;
     }
 
     function upload(Request $request){

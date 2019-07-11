@@ -11,4 +11,5 @@
 |
 */
 
+Route::get('/test/{any}', 'Api\TestController@index')->where('any', '.*');
 Route::get('/{any}', 'Api\AppController@index')->where('any', '.*');

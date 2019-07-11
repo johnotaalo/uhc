@@ -55,40 +55,81 @@ import Utilization from './views/dashboard/Utilization'
 import ServiceDelivery from './views/dashboard/ServiceDelivery'
 import FinancialHealth from './views/dashboard/FinancialHealth'
 import UploadData from './views/dashboard/UploadData'
+import Settings from './views/dashboard/Settings'
 
  const router = new VueRouter({
  	mode: 'history',
  	linkExactActiveClass: "active",
  	routes: [
 	 	{
-	 		path: '/',
+	 		path: '',
 	 		name: 'enrollment',
 	 		component: Enrollment
 	 	},
 	 	{
-	 		path: '/enrollment',
+	 		path: 'enrollment',
 	 		name: 'enrollment',
 	 		component: Enrollment
 	 	},
 	 	{
-	 		path: '/utilization',
+	 		path: 'utilization',
 	 		name: 'utilization',
 	 		component: Utilization
 	 	},
 	 	{
-	 		path: '/service-delivery',
+	 		path: 'service-delivery',
 	 		name: 'serviceDelivery',
 	 		component: ServiceDelivery
 	 	},
 	 	{
-	 		path: '/financial-health',
+	 		path: 'financial-health',
 	 		name: 'financialHealth',
 	 		component: FinancialHealth
 	 	},
 	 	{
-	 		path: '/upload-data',
+	 		path: 'upload-data',
 	 		name: 'uploadData',
 	 		component: UploadData
+	 	},
+	 	{
+	 		path: 'settings',
+	 		name: "settings",
+	 		component: Settings
+	 	},
+	 	{
+	 		path: '/test/',
+	 		name: 'test.enrollment',
+	 		component: Enrollment
+	 	},
+	 	{
+	 		path: '/test/enrollment',
+	 		name: 'test.enrollment',
+	 		component: Enrollment
+	 	},
+	 	{
+	 		path: '/test/utilization',
+	 		name: 'test.utilization',
+	 		component: Utilization
+	 	},
+	 	{
+	 		path: '/test/service-delivery',
+	 		name: 'test.serviceDelivery',
+	 		component: ServiceDelivery
+	 	},
+	 	{
+	 		path: '/test/financial-health',
+	 		name: 'test.financialHealth',
+	 		component: FinancialHealth
+	 	},
+	 	{
+	 		path: '/test/upload-data',
+	 		name: 'test.uploadData',
+	 		component: UploadData
+	 	},
+	 	{
+	 		path: '/test/settings',
+	 		name: "test.settings",
+	 		component: Settings
 	 	}
  	]
  });

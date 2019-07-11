@@ -19,3 +19,5 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::post('data/uploadData', 'Api\DataController@upload');
 Route::get('data/uploadOptions', 'Api\DataController@getUploadComponentData');
+Route::get('counties', 'Api\DataController@getCounties');
+Route::post('counties/pilot', 'Api\DataController@updatePilotCounties');

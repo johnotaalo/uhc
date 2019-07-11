@@ -1,6 +1,6 @@
 <template>
 	<div>
-		<top-bar />
+		<top-bar :type="type" />
 		<main class="py-4">
 			<div class="container">
 				<router-view></router-view>
@@ -12,5 +12,9 @@
 </template>
 
 <script type="text/javascript">
-	export default {}
+	export default {
+		props: {
+			type: { type: null, default: null }
+		}
+	}
 </script>
