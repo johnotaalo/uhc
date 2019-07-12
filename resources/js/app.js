@@ -13,6 +13,7 @@ window.Vue = require('vue');
 import VueRouter from 'vue-router'
 import BootstrapVue from 'bootstrap-vue'
 import HighchartsVue from 'highcharts-vue';
+import VueNumeric from 'vue-numeric'
 
 import vSelect from 'vue-select'
 
@@ -25,11 +26,15 @@ import loadDrilldown from 'highcharts/modules/drilldown.js';
 import loadHighchartsMore from 'highcharts/highcharts-more.js';
 import loadSolidGauge from 'highcharts/modules/solid-gauge.js';
 
+import numFormat from 'vue-filter-number-format';
+Vue.filter('numFormat', numFormat);
+
 
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
 Vue.component('v-select', vSelect)
+Vue.use(VueNumeric)
 
 Vue.use(HighchartsVue);
 /**

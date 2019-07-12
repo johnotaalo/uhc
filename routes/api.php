@@ -35,4 +35,5 @@ Route::prefix('data')->group(function(){
 	Route::get('search', 'Api\DataController@searchDataField');
 
 	Route::post('name/type/add', 'Api\DataController@addDataWithType');
+	Route::get('counties/population', 'Api\DataController@getCountyPopulation');
 });

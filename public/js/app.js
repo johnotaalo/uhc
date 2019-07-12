@@ -86,6 +86,431 @@
 /************************************************************************/
 /******/ ({
 
+/***/ "./node_modules/accounting-js/dist/accounting.umd.js":
+/*!***********************************************************!*\
+  !*** ./node_modules/accounting-js/dist/accounting.umd.js ***!
+  \***********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+(function (global, factory) {
+	 true ? factory(exports) :
+	undefined;
+}(this, function (exports) { 'use strict';
+
+	function __commonjs(fn, module) { return module = { exports: {} }, fn(module, module.exports), module.exports; }
+
+	/**
+	 * The library's settings configuration object.
+	 *
+	 * Contains default parameters for currency and number formatting
+	 */
+	var settings = {
+	  symbol: '$', // default currency symbol is '$'
+	  format: '%s%v', // controls output: %s = symbol, %v = value (can be object, see docs)
+	  decimal: '.', // decimal point separator
+	  thousand: ',', // thousands separator
+	  precision: 2, // decimal places
+	  grouping: 3, // digit grouping (not implemented yet)
+	  stripZeros: false, // strip insignificant zeros from decimal part
+	  fallback: 0 // value returned on unformat() failure
+	};
+
+	/**
+	 * Takes a string/array of strings, removes all formatting/cruft and returns the raw float value
+	 * Alias: `accounting.parse(string)`
+	 *
+	 * Decimal must be included in the regular expression to match floats (defaults to
+	 * accounting.settings.decimal), so if the number uses a non-standard decimal
+	 * separator, provide it as the second argument.
+	 *
+	 * Also matches bracketed negatives (eg. '$ (1.99)' => -1.99)
+	 *
+	 * Doesn't throw any errors (`NaN`s become 0) but this may change in future
+	 *
+	 * ```js
+	 *  accounting.unformat("£ 12,345,678.90 GBP"); // 12345678.9
+	 * ```
+	 *
+	 * @method unformat
+	 * @for accounting
+	 * @param {String|Array<String>} value The string or array of strings containing the number/s to parse.
+	 * @param {Number}               decimal Number of decimal digits of the resultant number
+	 * @return {Float} The parsed number
+	 */
+	function unformat(value) {
+	  var decimal = arguments.length <= 1 || arguments[1] === undefined ? settings.decimal : arguments[1];
+	  var fallback = arguments.length <= 2 || arguments[2] === undefined ? settings.fallback : arguments[2];
+
+	  // Recursively unformat arrays:
+	  if (Array.isArray(value)) {
+	    return value.map(function (val) {
+	      return unformat(val, decimal, fallback);
+	    });
+	  }
+
+	  // Return the value as-is if it's already a number:
+	  if (typeof value === 'number') return value;
+
+	  // Build regex to strip out everything except digits, decimal point and minus sign:
+	  var regex = new RegExp('[^0-9-(-)-' + decimal + ']', ['g']);
+	  var unformattedValueString = ('' + value).replace(regex, '') // strip out any cruft
+	  .replace(decimal, '.') // make sure decimal point is standard
+	  .replace(/\(([-]*\d*[^)]?\d+)\)/g, '-$1') // replace bracketed values with negatives
+	  .replace(/\((.*)\)/, ''); // remove any brackets that do not have numeric value
+
+	  /**
+	   * Handling -ve number and bracket, eg.
+	   * (-100) = 100, -(100) = 100, --100 = 100
+	   */
+	  var negative = (unformattedValueString.match(/-/g) || 2).length % 2,
+	      absUnformatted = parseFloat(unformattedValueString.replace(/-/g, '')),
+	      unformatted = absUnformatted * (negative ? -1 : 1);
+
+	  // This will fail silently which may cause trouble, let's wait and see:
+	  return !isNaN(unformatted) ? unformatted : fallback;
+	}
+
+	/**
+	 * Check and normalise the value of precision (must be positive integer)
+	 */
+	function _checkPrecision(val, base) {
+	  val = Math.round(Math.abs(val));
+	  return isNaN(val) ? base : val;
+	}
+
+	/**
+	 * Implementation of toFixed() that treats floats more like decimals
+	 *
+	 * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
+	 * problems for accounting- and finance-related software.
+	 *
+	 * ```js
+	 *  (0.615).toFixed(2);           // "0.61" (native toFixed has rounding issues)
+	 *  accounting.toFixed(0.615, 2); // "0.62"
+	 * ```
+	 *
+	 * @method toFixed
+	 * @for accounting
+	 * @param {Float}   value         The float to be treated as a decimal number.
+	 * @param {Number} [precision=2] The number of decimal digits to keep.
+	 * @return {String} The given number transformed into a string with the given precission
+	 */
+	function toFixed(value, precision) {
+	  precision = _checkPrecision(precision, settings.precision);
+	  var power = Math.pow(10, precision);
+
+	  // Multiply up by precision, round accurately, then divide and use native toFixed():
+	  return (Math.round((value + 1e-8) * power) / power).toFixed(precision);
+	}
+
+	var index = __commonjs(function (module) {
+	/* eslint-disable no-unused-vars */
+	'use strict';
+	var hasOwnProperty = Object.prototype.hasOwnProperty;
+	var propIsEnumerable = Object.prototype.propertyIsEnumerable;
+
+	function toObject(val) {
+		if (val === null || val === undefined) {
+			throw new TypeError('Object.assign cannot be called with null or undefined');
+		}
+
+		return Object(val);
+	}
+
+	module.exports = Object.assign || function (target, source) {
+		var from;
+		var to = toObject(target);
+		var symbols;
+
+		for (var s = 1; s < arguments.length; s++) {
+			from = Object(arguments[s]);
+
+			for (var key in from) {
+				if (hasOwnProperty.call(from, key)) {
+					to[key] = from[key];
+				}
+			}
+
+			if (Object.getOwnPropertySymbols) {
+				symbols = Object.getOwnPropertySymbols(from);
+				for (var i = 0; i < symbols.length; i++) {
+					if (propIsEnumerable.call(from, symbols[i])) {
+						to[symbols[i]] = from[symbols[i]];
+					}
+				}
+			}
+		}
+
+		return to;
+	};
+	});
+
+	var objectAssign = (index && typeof index === 'object' && 'default' in index ? index['default'] : index);
+
+	function _stripInsignificantZeros(str, decimal) {
+	  var parts = str.split(decimal);
+	  var integerPart = parts[0];
+	  var decimalPart = parts[1].replace(/0+$/, '');
+
+	  if (decimalPart.length > 0) {
+	    return integerPart + decimal + decimalPart;
+	  }
+
+	  return integerPart;
+	}
+
+	/**
+	 * Format a number, with comma-separated thousands and custom precision/decimal places
+	 * Alias: `accounting.format()`
+	 *
+	 * Localise by overriding the precision and thousand / decimal separators
+	 *
+	 * ```js
+	 * accounting.formatNumber(5318008);              // 5,318,008
+	 * accounting.formatNumber(9876543.21, { precision: 3, thousand: " " }); // 9 876 543.210
+	 * ```
+	 *
+	 * @method formatNumber
+	 * @for accounting
+	 * @param {Number}        number The number to be formatted.
+	 * @param {Object}        [opts={}] Object containing all the options of the method.
+	 * @return {String} The given number properly formatted.
+	  */
+	function formatNumber(number) {
+	  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	  // Resursively format arrays:
+	  if (Array.isArray(number)) {
+	    return number.map(function (val) {
+	      return formatNumber(val, opts);
+	    });
+	  }
+
+	  // Build options object from second param (if object) or all params, extending defaults:
+	  opts = objectAssign({}, settings, opts);
+
+	  // Do some calc:
+	  var negative = number < 0 ? '-' : '';
+	  var base = parseInt(toFixed(Math.abs(number), opts.precision), 10) + '';
+	  var mod = base.length > 3 ? base.length % 3 : 0;
+
+	  // Format the number:
+	  var formatted = negative + (mod ? base.substr(0, mod) + opts.thousand : '') + base.substr(mod).replace(/(\d{3})(?=\d)/g, '$1' + opts.thousand) + (opts.precision > 0 ? opts.decimal + toFixed(Math.abs(number), opts.precision).split('.')[1] : '');
+
+	  return opts.stripZeros ? _stripInsignificantZeros(formatted, opts.decimal) : formatted;
+	}
+
+	var index$1 = __commonjs(function (module) {
+	'use strict';
+
+	var strValue = String.prototype.valueOf;
+	var tryStringObject = function tryStringObject(value) {
+		try {
+			strValue.call(value);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	};
+	var toStr = Object.prototype.toString;
+	var strClass = '[object String]';
+	var hasToStringTag = typeof Symbol === 'function' && typeof Symbol.toStringTag === 'symbol';
+
+	module.exports = function isString(value) {
+		if (typeof value === 'string') { return true; }
+		if (typeof value !== 'object') { return false; }
+		return hasToStringTag ? tryStringObject(value) : toStr.call(value) === strClass;
+	};
+	});
+
+	var isString = (index$1 && typeof index$1 === 'object' && 'default' in index$1 ? index$1['default'] : index$1);
+
+	/**
+	 * Parses a format string or object and returns format obj for use in rendering
+	 *
+	 * `format` is either a string with the default (positive) format, or object
+	 * containing `pos` (required), `neg` and `zero` values
+	 *
+	 * Either string or format.pos must contain "%v" (value) to be valid
+	 *
+	 * @method _checkCurrencyFormat
+	 * @for accounting
+	 * @param {String}        [format="%s%v"] String with the format to apply, where %s is the currency symbol and %v is the value.
+	 * @return {Object} object represnting format (with pos, neg and zero attributes)
+	 */
+	function _checkCurrencyFormat(format) {
+	  // Format should be a string, in which case `value` ('%v') must be present:
+	  if (isString(format) && format.match('%v')) {
+	    // Create and return positive, negative and zero formats:
+	    return {
+	      pos: format,
+	      neg: format.replace('-', '').replace('%v', '-%v'),
+	      zero: format
+	    };
+	  }
+
+	  // Otherwise, assume format was fine:
+	  return format;
+	}
+
+	/**
+	 * Format a number into currency
+	 *
+	 * Usage: accounting.formatMoney(number, symbol, precision, thousandsSep, decimalSep, format)
+	 * defaults: (0, '$', 2, ',', '.', '%s%v')
+	 *
+	 * Localise by overriding the symbol, precision, thousand / decimal separators and format
+	 *
+	 * ```js
+	 * // Default usage:
+	 * accounting.formatMoney(12345678); // $12,345,678.00
+	 *
+	 * // European formatting (custom symbol and separators), can also use options object as second parameter:
+	 * accounting.formatMoney(4999.99, { symbol: "€", precision: 2, thousand: ".", decimal: "," }); // €4.999,99
+	 *
+	 * // Negative values can be formatted nicely:
+	 * accounting.formatMoney(-500000, { symbol: "£ ", precision: 0 }); // £ -500,000
+	 *
+	 * // Simple `format` string allows control of symbol position (%v = value, %s = symbol):
+	 * accounting.formatMoney(5318008, { symbol: "GBP",  format: "%v %s" }); // 5,318,008.00 GBP
+	 * ```
+	 *
+	 * @method formatMoney
+	 * @for accounting
+	 * @param {Number}        number Number to be formatted.
+	 * @param {Object}        [opts={}] Object containing all the options of the method.
+	 * @return {String} The given number properly formatted as money.
+	 */
+	function formatMoney(number) {
+	  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	  // Resursively format arrays:
+	  if (Array.isArray(number)) {
+	    return number.map(function (val) {
+	      return formatMoney(val, opts);
+	    });
+	  }
+
+	  // Build options object from second param (if object) or all params, extending defaults:
+	  opts = objectAssign({}, settings, opts);
+
+	  // Check format (returns object with pos, neg and zero):
+	  var formats = _checkCurrencyFormat(opts.format);
+
+	  // Choose which format to use for this value:
+	  var useFormat = undefined;
+
+	  if (number > 0) {
+	    useFormat = formats.pos;
+	  } else if (number < 0) {
+	    useFormat = formats.neg;
+	  } else {
+	    useFormat = formats.zero;
+	  }
+
+	  // Return with currency symbol added:
+	  return useFormat.replace('%s', opts.symbol).replace('%v', formatNumber(Math.abs(number), opts));
+	}
+
+	/**
+	 * Format a list of numbers into an accounting column, padding with whitespace
+	 * to line up currency symbols, thousand separators and decimals places
+	 *
+	 * List should be an array of numbers
+	 *
+	 * Returns array of accouting-formatted number strings of same length
+	 *
+	 * NB: `white-space:pre` CSS rule is required on the list container to prevent
+	 * browsers from collapsing the whitespace in the output strings.
+	 *
+	 * ```js
+	 * accounting.formatColumn([123.5, 3456.49, 777888.99, 12345678, -5432], { symbol: "$ " });
+	 * ```
+	 *
+	 * @method formatColumn
+	 * @for accounting
+	 * @param {Array<Number>} list An array of numbers to format
+	 * @param {Object}        [opts={}] Object containing all the options of the method.
+	 * @param {Object|String} [symbol="$"] String with the currency symbol. For conveniency if can be an object containing all the options of the method.
+	 * @param {Integer}       [precision=2] Number of decimal digits
+	 * @param {String}        [thousand=','] String with the thousands separator.
+	 * @param {String}        [decimal="."] String with the decimal separator.
+	 * @param {String}        [format="%s%v"] String with the format to apply, where %s is the currency symbol and %v is the value.
+	 * @return {Array<String>} array of accouting-formatted number strings of same length
+	 */
+	function formatColumn(list) {
+	  var opts = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
+	  if (!list) return [];
+
+	  // Build options object from second param (if object) or all params, extending defaults:
+	  opts = objectAssign({}, settings, opts);
+
+	  // Check format (returns object with pos, neg and zero), only need pos for now:
+	  var formats = _checkCurrencyFormat(opts.format);
+
+	  // Whether to pad at start of string or after currency symbol:
+	  var padAfterSymbol = formats.pos.indexOf('%s') < formats.pos.indexOf('%v');
+
+	  // Store value for the length of the longest string in the column:
+	  var maxLength = 0;
+
+	  // Format the list according to options, store the length of the longest string:
+	  var formatted = list.map(function (val) {
+	    if (Array.isArray(val)) {
+	      // Recursively format columns if list is a multi-dimensional array:
+	      return formatColumn(val, opts);
+	    }
+	    // Clean up the value
+	    val = unformat(val, opts.decimal);
+
+	    // Choose which format to use for this value (pos, neg or zero):
+	    var useFormat = undefined;
+
+	    if (val > 0) {
+	      useFormat = formats.pos;
+	    } else if (val < 0) {
+	      useFormat = formats.neg;
+	    } else {
+	      useFormat = formats.zero;
+	    }
+
+	    // Format this value, push into formatted list and save the length:
+	    var fVal = useFormat.replace('%s', opts.symbol).replace('%v', formatNumber(Math.abs(val), opts));
+
+	    if (fVal.length > maxLength) {
+	      maxLength = fVal.length;
+	    }
+
+	    return fVal;
+	  });
+
+	  // Pad each number in the list and send back the column of numbers:
+	  return formatted.map(function (val) {
+	    // Only if this is a string (not a nested array, which would have already been padded):
+	    if (isString(val) && val.length < maxLength) {
+	      // Depending on symbol position, pad after symbol or at index 0:
+	      return padAfterSymbol ? val.replace(opts.symbol, opts.symbol + new Array(maxLength - val.length + 1).join(' ')) : new Array(maxLength - val.length + 1).join(' ') + val;
+	    }
+	    return val;
+	  });
+	}
+
+	exports.settings = settings;
+	exports.unformat = unformat;
+	exports.toFixed = toFixed;
+	exports.formatMoney = formatMoney;
+	exports.formatNumber = formatNumber;
+	exports.formatColumn = formatColumn;
+	exports.format = formatMoney;
+	exports.parse = unformat;
+
+}));
+//# sourceMappingURL=accounting.umd.js.map
+
+/***/ }),
+
 /***/ "./node_modules/axios/index.js":
 /*!*************************************!*\
   !*** ./node_modules/axios/index.js ***!
@@ -5944,8 +6369,11 @@ __webpack_require__.r(__webpack_exports__);
         value: '',
         text: 'National'
       }],
+      colors: colors,
       selected: "",
       data: {
+        population: 0,
+        opdIpdData: [],
         opdUtilization: [],
         ipdUtilization: [],
         referralFacilities: [{
@@ -6008,46 +6436,6 @@ __webpack_require__.r(__webpack_exports__);
           level: "Level 2",
           rate: 51,
           los: 8
-        }]
-      },
-      opdIpd: {
-        chart: {
-          type: 'column'
-        },
-        title: {
-          text: 'OPD and IPD Utilization'
-        },
-        xAxis: {
-          categories: ['OPD', 'IPD'],
-          crosshair: true
-        },
-        yAxis: {
-          min: 0,
-          title: {
-            text: 'Percentage'
-          }
-        },
-        tooltip: {
-          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-          footerFormat: '</table>',
-          shared: true,
-          useHTML: true
-        },
-        plotOptions: {
-          column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-          }
-        },
-        series: [{
-          name: 'Pilot Area',
-          data: [48.9, 38.8],
-          color: colors.blue
-        }, {
-          name: 'Non-Pilot Area (Average)',
-          data: [42.4, 33.2],
-          color: colors.orange
         }]
       },
       opdLevelofFacility: {
@@ -6285,6 +6673,7 @@ __webpack_require__.r(__webpack_exports__);
     };
   },
   created: function created() {
+    this.getCountyPopulation(this.selected);
     this.getPilotAreas();
   },
   methods: {
@@ -6305,16 +6694,68 @@ __webpack_require__.r(__webpack_exports__);
       });
     },
     getIPDOPDPilotCountyDetails: function getIPDOPDPilotCountyDetails(county_id) {
+      var _this2 = this;
+
       axios.post('/api/data/counties/pilot/opd-ipd', {
         id: county_id
       }).then(function (res) {
         console.log(res);
+        _this2.data.opdIpdData = res.data;
+      });
+    },
+    getCountyPopulation: function getCountyPopulation(val) {
+      var _this3 = this;
+
+      if (val == "") {
+        val = 'national';
+      }
+
+      axios.get("/api/data/counties/population?q=".concat(val)).then(function (res) {
+        _this3.data.population = res.data;
       });
     }
   },
   watch: {
     selected: function selected(val) {
+      this.getCountyPopulation(val);
       this.getIPDOPDPilotCountyDetails(val);
+    }
+  },
+  computed: {
+    opdIpd: function opdIpd() {
+      return {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'OPD and IPD Utilization'
+        },
+        xAxis: {
+          categories: ['OPD', 'IPD'],
+          crosshair: true
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Percentage'
+          }
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+          name: 'Pilot Area',
+          data: [parseInt(this.data.opdIpdData.opd) / this.data.population * 100, parseInt(this.data.opdIpdData.ipd) / this.data.population * 100],
+          color: this.colors.blue
+        }, {
+          name: 'Non-Pilot Area (Average)',
+          data: [0, 0],
+          color: this.colors.orange
+        }]
+      };
     }
   }
 });
@@ -68421,6 +68862,1030 @@ return jQuery;
 
 /***/ }),
 
+/***/ "./node_modules/numeral/numeral.js":
+/*!*****************************************!*\
+  !*** ./node_modules/numeral/numeral.js ***!
+  \*****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;/*! @preserve
+ * numeral.js
+ * version : 2.0.6
+ * author : Adam Draper
+ * license : MIT
+ * http://adamwdraper.github.com/Numeral-js/
+ */
+
+(function (global, factory) {
+    if (true) {
+        !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory),
+				__WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ?
+				(__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) :
+				__WEBPACK_AMD_DEFINE_FACTORY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+    } else {}
+}(this, function () {
+    /************************************
+        Variables
+    ************************************/
+
+    var numeral,
+        _,
+        VERSION = '2.0.6',
+        formats = {},
+        locales = {},
+        defaults = {
+            currentLocale: 'en',
+            zeroFormat: null,
+            nullFormat: null,
+            defaultFormat: '0,0',
+            scalePercentBy100: true
+        },
+        options = {
+            currentLocale: defaults.currentLocale,
+            zeroFormat: defaults.zeroFormat,
+            nullFormat: defaults.nullFormat,
+            defaultFormat: defaults.defaultFormat,
+            scalePercentBy100: defaults.scalePercentBy100
+        };
+
+
+    /************************************
+        Constructors
+    ************************************/
+
+    // Numeral prototype object
+    function Numeral(input, number) {
+        this._input = input;
+
+        this._value = number;
+    }
+
+    numeral = function(input) {
+        var value,
+            kind,
+            unformatFunction,
+            regexp;
+
+        if (numeral.isNumeral(input)) {
+            value = input.value();
+        } else if (input === 0 || typeof input === 'undefined') {
+            value = 0;
+        } else if (input === null || _.isNaN(input)) {
+            value = null;
+        } else if (typeof input === 'string') {
+            if (options.zeroFormat && input === options.zeroFormat) {
+                value = 0;
+            } else if (options.nullFormat && input === options.nullFormat || !input.replace(/[^0-9]+/g, '').length) {
+                value = null;
+            } else {
+                for (kind in formats) {
+                    regexp = typeof formats[kind].regexps.unformat === 'function' ? formats[kind].regexps.unformat() : formats[kind].regexps.unformat;
+
+                    if (regexp && input.match(regexp)) {
+                        unformatFunction = formats[kind].unformat;
+
+                        break;
+                    }
+                }
+
+                unformatFunction = unformatFunction || numeral._.stringToNumber;
+
+                value = unformatFunction(input);
+            }
+        } else {
+            value = Number(input)|| null;
+        }
+
+        return new Numeral(input, value);
+    };
+
+    // version number
+    numeral.version = VERSION;
+
+    // compare numeral object
+    numeral.isNumeral = function(obj) {
+        return obj instanceof Numeral;
+    };
+
+    // helper functions
+    numeral._ = _ = {
+        // formats numbers separators, decimals places, signs, abbreviations
+        numberToFormat: function(value, format, roundingFunction) {
+            var locale = locales[numeral.options.currentLocale],
+                negP = false,
+                optDec = false,
+                leadingCount = 0,
+                abbr = '',
+                trillion = 1000000000000,
+                billion = 1000000000,
+                million = 1000000,
+                thousand = 1000,
+                decimal = '',
+                neg = false,
+                abbrForce, // force abbreviation
+                abs,
+                min,
+                max,
+                power,
+                int,
+                precision,
+                signed,
+                thousands,
+                output;
+
+            // make sure we never format a null value
+            value = value || 0;
+
+            abs = Math.abs(value);
+
+            // see if we should use parentheses for negative number or if we should prefix with a sign
+            // if both are present we default to parentheses
+            if (numeral._.includes(format, '(')) {
+                negP = true;
+                format = format.replace(/[\(|\)]/g, '');
+            } else if (numeral._.includes(format, '+') || numeral._.includes(format, '-')) {
+                signed = numeral._.includes(format, '+') ? format.indexOf('+') : value < 0 ? format.indexOf('-') : -1;
+                format = format.replace(/[\+|\-]/g, '');
+            }
+
+            // see if abbreviation is wanted
+            if (numeral._.includes(format, 'a')) {
+                abbrForce = format.match(/a(k|m|b|t)?/);
+
+                abbrForce = abbrForce ? abbrForce[1] : false;
+
+                // check for space before abbreviation
+                if (numeral._.includes(format, ' a')) {
+                    abbr = ' ';
+                }
+
+                format = format.replace(new RegExp(abbr + 'a[kmbt]?'), '');
+
+                if (abs >= trillion && !abbrForce || abbrForce === 't') {
+                    // trillion
+                    abbr += locale.abbreviations.trillion;
+                    value = value / trillion;
+                } else if (abs < trillion && abs >= billion && !abbrForce || abbrForce === 'b') {
+                    // billion
+                    abbr += locale.abbreviations.billion;
+                    value = value / billion;
+                } else if (abs < billion && abs >= million && !abbrForce || abbrForce === 'm') {
+                    // million
+                    abbr += locale.abbreviations.million;
+                    value = value / million;
+                } else if (abs < million && abs >= thousand && !abbrForce || abbrForce === 'k') {
+                    // thousand
+                    abbr += locale.abbreviations.thousand;
+                    value = value / thousand;
+                }
+            }
+
+            // check for optional decimals
+            if (numeral._.includes(format, '[.]')) {
+                optDec = true;
+                format = format.replace('[.]', '.');
+            }
+
+            // break number and format
+            int = value.toString().split('.')[0];
+            precision = format.split('.')[1];
+            thousands = format.indexOf(',');
+            leadingCount = (format.split('.')[0].split(',')[0].match(/0/g) || []).length;
+
+            if (precision) {
+                if (numeral._.includes(precision, '[')) {
+                    precision = precision.replace(']', '');
+                    precision = precision.split('[');
+                    decimal = numeral._.toFixed(value, (precision[0].length + precision[1].length), roundingFunction, precision[1].length);
+                } else {
+                    decimal = numeral._.toFixed(value, precision.length, roundingFunction);
+                }
+
+                int = decimal.split('.')[0];
+
+                if (numeral._.includes(decimal, '.')) {
+                    decimal = locale.delimiters.decimal + decimal.split('.')[1];
+                } else {
+                    decimal = '';
+                }
+
+                if (optDec && Number(decimal.slice(1)) === 0) {
+                    decimal = '';
+                }
+            } else {
+                int = numeral._.toFixed(value, 0, roundingFunction);
+            }
+
+            // check abbreviation again after rounding
+            if (abbr && !abbrForce && Number(int) >= 1000 && abbr !== locale.abbreviations.trillion) {
+                int = String(Number(int) / 1000);
+
+                switch (abbr) {
+                    case locale.abbreviations.thousand:
+                        abbr = locale.abbreviations.million;
+                        break;
+                    case locale.abbreviations.million:
+                        abbr = locale.abbreviations.billion;
+                        break;
+                    case locale.abbreviations.billion:
+                        abbr = locale.abbreviations.trillion;
+                        break;
+                }
+            }
+
+
+            // format number
+            if (numeral._.includes(int, '-')) {
+                int = int.slice(1);
+                neg = true;
+            }
+
+            if (int.length < leadingCount) {
+                for (var i = leadingCount - int.length; i > 0; i--) {
+                    int = '0' + int;
+                }
+            }
+
+            if (thousands > -1) {
+                int = int.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1' + locale.delimiters.thousands);
+            }
+
+            if (format.indexOf('.') === 0) {
+                int = '';
+            }
+
+            output = int + decimal + (abbr ? abbr : '');
+
+            if (negP) {
+                output = (negP && neg ? '(' : '') + output + (negP && neg ? ')' : '');
+            } else {
+                if (signed >= 0) {
+                    output = signed === 0 ? (neg ? '-' : '+') + output : output + (neg ? '-' : '+');
+                } else if (neg) {
+                    output = '-' + output;
+                }
+            }
+
+            return output;
+        },
+        // unformats numbers separators, decimals places, signs, abbreviations
+        stringToNumber: function(string) {
+            var locale = locales[options.currentLocale],
+                stringOriginal = string,
+                abbreviations = {
+                    thousand: 3,
+                    million: 6,
+                    billion: 9,
+                    trillion: 12
+                },
+                abbreviation,
+                value,
+                i,
+                regexp;
+
+            if (options.zeroFormat && string === options.zeroFormat) {
+                value = 0;
+            } else if (options.nullFormat && string === options.nullFormat || !string.replace(/[^0-9]+/g, '').length) {
+                value = null;
+            } else {
+                value = 1;
+
+                if (locale.delimiters.decimal !== '.') {
+                    string = string.replace(/\./g, '').replace(locale.delimiters.decimal, '.');
+                }
+
+                for (abbreviation in abbreviations) {
+                    regexp = new RegExp('[^a-zA-Z]' + locale.abbreviations[abbreviation] + '(?:\\)|(\\' + locale.currency.symbol + ')?(?:\\))?)?$');
+
+                    if (stringOriginal.match(regexp)) {
+                        value *= Math.pow(10, abbreviations[abbreviation]);
+                        break;
+                    }
+                }
+
+                // check for negative number
+                value *= (string.split('-').length + Math.min(string.split('(').length - 1, string.split(')').length - 1)) % 2 ? 1 : -1;
+
+                // remove non numbers
+                string = string.replace(/[^0-9\.]+/g, '');
+
+                value *= Number(string);
+            }
+
+            return value;
+        },
+        isNaN: function(value) {
+            return typeof value === 'number' && isNaN(value);
+        },
+        includes: function(string, search) {
+            return string.indexOf(search) !== -1;
+        },
+        insert: function(string, subString, start) {
+            return string.slice(0, start) + subString + string.slice(start);
+        },
+        reduce: function(array, callback /*, initialValue*/) {
+            if (this === null) {
+                throw new TypeError('Array.prototype.reduce called on null or undefined');
+            }
+
+            if (typeof callback !== 'function') {
+                throw new TypeError(callback + ' is not a function');
+            }
+
+            var t = Object(array),
+                len = t.length >>> 0,
+                k = 0,
+                value;
+
+            if (arguments.length === 3) {
+                value = arguments[2];
+            } else {
+                while (k < len && !(k in t)) {
+                    k++;
+                }
+
+                if (k >= len) {
+                    throw new TypeError('Reduce of empty array with no initial value');
+                }
+
+                value = t[k++];
+            }
+            for (; k < len; k++) {
+                if (k in t) {
+                    value = callback(value, t[k], k, t);
+                }
+            }
+            return value;
+        },
+        /**
+         * Computes the multiplier necessary to make x >= 1,
+         * effectively eliminating miscalculations caused by
+         * finite precision.
+         */
+        multiplier: function (x) {
+            var parts = x.toString().split('.');
+
+            return parts.length < 2 ? 1 : Math.pow(10, parts[1].length);
+        },
+        /**
+         * Given a variable number of arguments, returns the maximum
+         * multiplier that must be used to normalize an operation involving
+         * all of them.
+         */
+        correctionFactor: function () {
+            var args = Array.prototype.slice.call(arguments);
+
+            return args.reduce(function(accum, next) {
+                var mn = _.multiplier(next);
+                return accum > mn ? accum : mn;
+            }, 1);
+        },
+        /**
+         * Implementation of toFixed() that treats floats more like decimals
+         *
+         * Fixes binary rounding issues (eg. (0.615).toFixed(2) === '0.61') that present
+         * problems for accounting- and finance-related software.
+         */
+        toFixed: function(value, maxDecimals, roundingFunction, optionals) {
+            var splitValue = value.toString().split('.'),
+                minDecimals = maxDecimals - (optionals || 0),
+                boundedPrecision,
+                optionalsRegExp,
+                power,
+                output;
+
+            // Use the smallest precision value possible to avoid errors from floating point representation
+            if (splitValue.length === 2) {
+              boundedPrecision = Math.min(Math.max(splitValue[1].length, minDecimals), maxDecimals);
+            } else {
+              boundedPrecision = minDecimals;
+            }
+
+            power = Math.pow(10, boundedPrecision);
+
+            // Multiply up by precision, round accurately, then divide and use native toFixed():
+            output = (roundingFunction(value + 'e+' + boundedPrecision) / power).toFixed(boundedPrecision);
+
+            if (optionals > maxDecimals - boundedPrecision) {
+                optionalsRegExp = new RegExp('\\.?0{1,' + (optionals - (maxDecimals - boundedPrecision)) + '}$');
+                output = output.replace(optionalsRegExp, '');
+            }
+
+            return output;
+        }
+    };
+
+    // avaliable options
+    numeral.options = options;
+
+    // avaliable formats
+    numeral.formats = formats;
+
+    // avaliable formats
+    numeral.locales = locales;
+
+    // This function sets the current locale.  If
+    // no arguments are passed in, it will simply return the current global
+    // locale key.
+    numeral.locale = function(key) {
+        if (key) {
+            options.currentLocale = key.toLowerCase();
+        }
+
+        return options.currentLocale;
+    };
+
+    // This function provides access to the loaded locale data.  If
+    // no arguments are passed in, it will simply return the current
+    // global locale object.
+    numeral.localeData = function(key) {
+        if (!key) {
+            return locales[options.currentLocale];
+        }
+
+        key = key.toLowerCase();
+
+        if (!locales[key]) {
+            throw new Error('Unknown locale : ' + key);
+        }
+
+        return locales[key];
+    };
+
+    numeral.reset = function() {
+        for (var property in defaults) {
+            options[property] = defaults[property];
+        }
+    };
+
+    numeral.zeroFormat = function(format) {
+        options.zeroFormat = typeof(format) === 'string' ? format : null;
+    };
+
+    numeral.nullFormat = function (format) {
+        options.nullFormat = typeof(format) === 'string' ? format : null;
+    };
+
+    numeral.defaultFormat = function(format) {
+        options.defaultFormat = typeof(format) === 'string' ? format : '0.0';
+    };
+
+    numeral.register = function(type, name, format) {
+        name = name.toLowerCase();
+
+        if (this[type + 's'][name]) {
+            throw new TypeError(name + ' ' + type + ' already registered.');
+        }
+
+        this[type + 's'][name] = format;
+
+        return format;
+    };
+
+
+    numeral.validate = function(val, culture) {
+        var _decimalSep,
+            _thousandSep,
+            _currSymbol,
+            _valArray,
+            _abbrObj,
+            _thousandRegEx,
+            localeData,
+            temp;
+
+        //coerce val to string
+        if (typeof val !== 'string') {
+            val += '';
+
+            if (console.warn) {
+                console.warn('Numeral.js: Value is not string. It has been co-erced to: ', val);
+            }
+        }
+
+        //trim whitespaces from either sides
+        val = val.trim();
+
+        //if val is just digits return true
+        if (!!val.match(/^\d+$/)) {
+            return true;
+        }
+
+        //if val is empty return false
+        if (val === '') {
+            return false;
+        }
+
+        //get the decimal and thousands separator from numeral.localeData
+        try {
+            //check if the culture is understood by numeral. if not, default it to current locale
+            localeData = numeral.localeData(culture);
+        } catch (e) {
+            localeData = numeral.localeData(numeral.locale());
+        }
+
+        //setup the delimiters and currency symbol based on culture/locale
+        _currSymbol = localeData.currency.symbol;
+        _abbrObj = localeData.abbreviations;
+        _decimalSep = localeData.delimiters.decimal;
+        if (localeData.delimiters.thousands === '.') {
+            _thousandSep = '\\.';
+        } else {
+            _thousandSep = localeData.delimiters.thousands;
+        }
+
+        // validating currency symbol
+        temp = val.match(/^[^\d]+/);
+        if (temp !== null) {
+            val = val.substr(1);
+            if (temp[0] !== _currSymbol) {
+                return false;
+            }
+        }
+
+        //validating abbreviation symbol
+        temp = val.match(/[^\d]+$/);
+        if (temp !== null) {
+            val = val.slice(0, -1);
+            if (temp[0] !== _abbrObj.thousand && temp[0] !== _abbrObj.million && temp[0] !== _abbrObj.billion && temp[0] !== _abbrObj.trillion) {
+                return false;
+            }
+        }
+
+        _thousandRegEx = new RegExp(_thousandSep + '{2}');
+
+        if (!val.match(/[^\d.,]/g)) {
+            _valArray = val.split(_decimalSep);
+            if (_valArray.length > 2) {
+                return false;
+            } else {
+                if (_valArray.length < 2) {
+                    return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx));
+                } else {
+                    if (_valArray[0].length === 1) {
+                        return ( !! _valArray[0].match(/^\d+$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
+                    } else {
+                        return ( !! _valArray[0].match(/^\d+.*\d$/) && !_valArray[0].match(_thousandRegEx) && !! _valArray[1].match(/^\d+$/));
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+
+    /************************************
+        Numeral Prototype
+    ************************************/
+
+    numeral.fn = Numeral.prototype = {
+        clone: function() {
+            return numeral(this);
+        },
+        format: function(inputString, roundingFunction) {
+            var value = this._value,
+                format = inputString || options.defaultFormat,
+                kind,
+                output,
+                formatFunction;
+
+            // make sure we have a roundingFunction
+            roundingFunction = roundingFunction || Math.round;
+
+            // format based on value
+            if (value === 0 && options.zeroFormat !== null) {
+                output = options.zeroFormat;
+            } else if (value === null && options.nullFormat !== null) {
+                output = options.nullFormat;
+            } else {
+                for (kind in formats) {
+                    if (format.match(formats[kind].regexps.format)) {
+                        formatFunction = formats[kind].format;
+
+                        break;
+                    }
+                }
+
+                formatFunction = formatFunction || numeral._.numberToFormat;
+
+                output = formatFunction(value, format, roundingFunction);
+            }
+
+            return output;
+        },
+        value: function() {
+            return this._value;
+        },
+        input: function() {
+            return this._input;
+        },
+        set: function(value) {
+            this._value = Number(value);
+
+            return this;
+        },
+        add: function(value) {
+            var corrFactor = _.correctionFactor.call(null, this._value, value);
+
+            function cback(accum, curr, currI, O) {
+                return accum + Math.round(corrFactor * curr);
+            }
+
+            this._value = _.reduce([this._value, value], cback, 0) / corrFactor;
+
+            return this;
+        },
+        subtract: function(value) {
+            var corrFactor = _.correctionFactor.call(null, this._value, value);
+
+            function cback(accum, curr, currI, O) {
+                return accum - Math.round(corrFactor * curr);
+            }
+
+            this._value = _.reduce([value], cback, Math.round(this._value * corrFactor)) / corrFactor;
+
+            return this;
+        },
+        multiply: function(value) {
+            function cback(accum, curr, currI, O) {
+                var corrFactor = _.correctionFactor(accum, curr);
+                return Math.round(accum * corrFactor) * Math.round(curr * corrFactor) / Math.round(corrFactor * corrFactor);
+            }
+
+            this._value = _.reduce([this._value, value], cback, 1);
+
+            return this;
+        },
+        divide: function(value) {
+            function cback(accum, curr, currI, O) {
+                var corrFactor = _.correctionFactor(accum, curr);
+                return Math.round(accum * corrFactor) / Math.round(curr * corrFactor);
+            }
+
+            this._value = _.reduce([this._value, value], cback);
+
+            return this;
+        },
+        difference: function(value) {
+            return Math.abs(numeral(this._value).subtract(value).value());
+        }
+    };
+
+    /************************************
+        Default Locale && Format
+    ************************************/
+
+    numeral.register('locale', 'en', {
+        delimiters: {
+            thousands: ',',
+            decimal: '.'
+        },
+        abbreviations: {
+            thousand: 'k',
+            million: 'm',
+            billion: 'b',
+            trillion: 't'
+        },
+        ordinal: function(number) {
+            var b = number % 10;
+            return (~~(number % 100 / 10) === 1) ? 'th' :
+                (b === 1) ? 'st' :
+                (b === 2) ? 'nd' :
+                (b === 3) ? 'rd' : 'th';
+        },
+        currency: {
+            symbol: '$'
+        }
+    });
+
+    
+
+(function() {
+        numeral.register('format', 'bps', {
+            regexps: {
+                format: /(BPS)/,
+                unformat: /(BPS)/
+            },
+            format: function(value, format, roundingFunction) {
+                var space = numeral._.includes(format, ' BPS') ? ' ' : '',
+                    output;
+
+                value = value * 10000;
+
+                // check for space before BPS
+                format = format.replace(/\s?BPS/, '');
+
+                output = numeral._.numberToFormat(value, format, roundingFunction);
+
+                if (numeral._.includes(output, ')')) {
+                    output = output.split('');
+
+                    output.splice(-1, 0, space + 'BPS');
+
+                    output = output.join('');
+                } else {
+                    output = output + space + 'BPS';
+                }
+
+                return output;
+            },
+            unformat: function(string) {
+                return +(numeral._.stringToNumber(string) * 0.0001).toFixed(15);
+            }
+        });
+})();
+
+
+(function() {
+        var decimal = {
+            base: 1000,
+            suffixes: ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
+        },
+        binary = {
+            base: 1024,
+            suffixes: ['B', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+        };
+
+    var allSuffixes =  decimal.suffixes.concat(binary.suffixes.filter(function (item) {
+            return decimal.suffixes.indexOf(item) < 0;
+        }));
+        var unformatRegex = allSuffixes.join('|');
+        // Allow support for BPS (http://www.investopedia.com/terms/b/basispoint.asp)
+        unformatRegex = '(' + unformatRegex.replace('B', 'B(?!PS)') + ')';
+
+    numeral.register('format', 'bytes', {
+        regexps: {
+            format: /([0\s]i?b)/,
+            unformat: new RegExp(unformatRegex)
+        },
+        format: function(value, format, roundingFunction) {
+            var output,
+                bytes = numeral._.includes(format, 'ib') ? binary : decimal,
+                suffix = numeral._.includes(format, ' b') || numeral._.includes(format, ' ib') ? ' ' : '',
+                power,
+                min,
+                max;
+
+            // check for space before
+            format = format.replace(/\s?i?b/, '');
+
+            for (power = 0; power <= bytes.suffixes.length; power++) {
+                min = Math.pow(bytes.base, power);
+                max = Math.pow(bytes.base, power + 1);
+
+                if (value === null || value === 0 || value >= min && value < max) {
+                    suffix += bytes.suffixes[power];
+
+                    if (min > 0) {
+                        value = value / min;
+                    }
+
+                    break;
+                }
+            }
+
+            output = numeral._.numberToFormat(value, format, roundingFunction);
+
+            return output + suffix;
+        },
+        unformat: function(string) {
+            var value = numeral._.stringToNumber(string),
+                power,
+                bytesMultiplier;
+
+            if (value) {
+                for (power = decimal.suffixes.length - 1; power >= 0; power--) {
+                    if (numeral._.includes(string, decimal.suffixes[power])) {
+                        bytesMultiplier = Math.pow(decimal.base, power);
+
+                        break;
+                    }
+
+                    if (numeral._.includes(string, binary.suffixes[power])) {
+                        bytesMultiplier = Math.pow(binary.base, power);
+
+                        break;
+                    }
+                }
+
+                value *= (bytesMultiplier || 1);
+            }
+
+            return value;
+        }
+    });
+})();
+
+
+(function() {
+        numeral.register('format', 'currency', {
+        regexps: {
+            format: /(\$)/
+        },
+        format: function(value, format, roundingFunction) {
+            var locale = numeral.locales[numeral.options.currentLocale],
+                symbols = {
+                    before: format.match(/^([\+|\-|\(|\s|\$]*)/)[0],
+                    after: format.match(/([\+|\-|\)|\s|\$]*)$/)[0]
+                },
+                output,
+                symbol,
+                i;
+
+            // strip format of spaces and $
+            format = format.replace(/\s?\$\s?/, '');
+
+            // format the number
+            output = numeral._.numberToFormat(value, format, roundingFunction);
+
+            // update the before and after based on value
+            if (value >= 0) {
+                symbols.before = symbols.before.replace(/[\-\(]/, '');
+                symbols.after = symbols.after.replace(/[\-\)]/, '');
+            } else if (value < 0 && (!numeral._.includes(symbols.before, '-') && !numeral._.includes(symbols.before, '('))) {
+                symbols.before = '-' + symbols.before;
+            }
+
+            // loop through each before symbol
+            for (i = 0; i < symbols.before.length; i++) {
+                symbol = symbols.before[i];
+
+                switch (symbol) {
+                    case '$':
+                        output = numeral._.insert(output, locale.currency.symbol, i);
+                        break;
+                    case ' ':
+                        output = numeral._.insert(output, ' ', i + locale.currency.symbol.length - 1);
+                        break;
+                }
+            }
+
+            // loop through each after symbol
+            for (i = symbols.after.length - 1; i >= 0; i--) {
+                symbol = symbols.after[i];
+
+                switch (symbol) {
+                    case '$':
+                        output = i === symbols.after.length - 1 ? output + locale.currency.symbol : numeral._.insert(output, locale.currency.symbol, -(symbols.after.length - (1 + i)));
+                        break;
+                    case ' ':
+                        output = i === symbols.after.length - 1 ? output + ' ' : numeral._.insert(output, ' ', -(symbols.after.length - (1 + i) + locale.currency.symbol.length - 1));
+                        break;
+                }
+            }
+
+
+            return output;
+        }
+    });
+})();
+
+
+(function() {
+        numeral.register('format', 'exponential', {
+        regexps: {
+            format: /(e\+|e-)/,
+            unformat: /(e\+|e-)/
+        },
+        format: function(value, format, roundingFunction) {
+            var output,
+                exponential = typeof value === 'number' && !numeral._.isNaN(value) ? value.toExponential() : '0e+0',
+                parts = exponential.split('e');
+
+            format = format.replace(/e[\+|\-]{1}0/, '');
+
+            output = numeral._.numberToFormat(Number(parts[0]), format, roundingFunction);
+
+            return output + 'e' + parts[1];
+        },
+        unformat: function(string) {
+            var parts = numeral._.includes(string, 'e+') ? string.split('e+') : string.split('e-'),
+                value = Number(parts[0]),
+                power = Number(parts[1]);
+
+            power = numeral._.includes(string, 'e-') ? power *= -1 : power;
+
+            function cback(accum, curr, currI, O) {
+                var corrFactor = numeral._.correctionFactor(accum, curr),
+                    num = (accum * corrFactor) * (curr * corrFactor) / (corrFactor * corrFactor);
+                return num;
+            }
+
+            return numeral._.reduce([value, Math.pow(10, power)], cback, 1);
+        }
+    });
+})();
+
+
+(function() {
+        numeral.register('format', 'ordinal', {
+        regexps: {
+            format: /(o)/
+        },
+        format: function(value, format, roundingFunction) {
+            var locale = numeral.locales[numeral.options.currentLocale],
+                output,
+                ordinal = numeral._.includes(format, ' o') ? ' ' : '';
+
+            // check for space before
+            format = format.replace(/\s?o/, '');
+
+            ordinal += locale.ordinal(value);
+
+            output = numeral._.numberToFormat(value, format, roundingFunction);
+
+            return output + ordinal;
+        }
+    });
+})();
+
+
+(function() {
+        numeral.register('format', 'percentage', {
+        regexps: {
+            format: /(%)/,
+            unformat: /(%)/
+        },
+        format: function(value, format, roundingFunction) {
+            var space = numeral._.includes(format, ' %') ? ' ' : '',
+                output;
+
+            if (numeral.options.scalePercentBy100) {
+                value = value * 100;
+            }
+
+            // check for space before %
+            format = format.replace(/\s?\%/, '');
+
+            output = numeral._.numberToFormat(value, format, roundingFunction);
+
+            if (numeral._.includes(output, ')')) {
+                output = output.split('');
+
+                output.splice(-1, 0, space + '%');
+
+                output = output.join('');
+            } else {
+                output = output + space + '%';
+            }
+
+            return output;
+        },
+        unformat: function(string) {
+            var number = numeral._.stringToNumber(string);
+            if (numeral.options.scalePercentBy100) {
+                return number * 0.01;
+            }
+            return number;
+        }
+    });
+})();
+
+
+(function() {
+        numeral.register('format', 'time', {
+        regexps: {
+            format: /(:)/,
+            unformat: /(:)/
+        },
+        format: function(value, format, roundingFunction) {
+            var hours = Math.floor(value / 60 / 60),
+                minutes = Math.floor((value - (hours * 60 * 60)) / 60),
+                seconds = Math.round(value - (hours * 60 * 60) - (minutes * 60));
+
+            return hours + ':' + (minutes < 10 ? '0' + minutes : minutes) + ':' + (seconds < 10 ? '0' + seconds : seconds);
+        },
+        unformat: function(string) {
+            var timeArray = string.split(':'),
+                seconds = 0;
+
+            // turn hours and minutes into seconds and add them all up
+            if (timeArray.length === 3) {
+                // hours
+                seconds = seconds + (Number(timeArray[0]) * 60 * 60);
+                // minutes
+                seconds = seconds + (Number(timeArray[1]) * 60);
+                // seconds
+                seconds = seconds + Number(timeArray[2]);
+            } else if (timeArray.length === 2) {
+                // minutes
+                seconds = seconds + (Number(timeArray[0]) * 60);
+                // seconds
+                seconds = seconds + Number(timeArray[1]);
+            }
+            return Number(seconds);
+        }
+    });
+})();
+
+return numeral;
+}));
+
+
+/***/ }),
+
 /***/ "./node_modules/popper.js/dist/esm/popper.js":
 /*!***************************************************!*\
   !*** ./node_modules/popper.js/dist/esm/popper.js ***!
@@ -72644,6 +74109,18 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-filter-number-format/dist/vue-filter-number-format.js":
+/*!********************************************************************************!*\
+  !*** ./node_modules/vue-filter-number-format/dist/vue-filter-number-format.js ***!
+  \********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(e,t){if(true)module.exports=t(__webpack_require__(/*! numeral */ "./node_modules/numeral/numeral.js"));else { var n, r; }}("undefined"!=typeof self?self:this,function(e){return function(e){function t(n){if(r[n])return r[n].exports;var o=r[n]={i:n,l:!1,exports:{}};return e[n].call(o.exports,o,o.exports,t),o.l=!0,o.exports}var r={};return t.m=e,t.c=r,t.d=function(e,r,n){t.o(e,r)||Object.defineProperty(e,r,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="/dist/",t(t.s=0)}([function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=r(1),o=r.n(n);t.default=function(e){var t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:"0,0";return o()(e).format(t)}},function(t,r){t.exports=e}])});
+//# sourceMappingURL=vue-filter-number-format.js.map
+
+/***/ }),
+
 /***/ "./node_modules/vue-functional-data-merge/dist/lib.esm.js":
 /*!****************************************************************!*\
   !*** ./node_modules/vue-functional-data-merge/dist/lib.esm.js ***!
@@ -76074,18 +77551,30 @@ var render = function() {
           1
         ),
         _vm._v(" "),
+        _c("div", { staticClass: "col" }, [
+          _c("h6", { staticClass: "header-pretitle" }, [
+            _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
+          ]),
+          _vm._v(" "),
+          _c("h1", { staticClass: "header-title" }, [
+            _vm._v(
+              "\n\t\t\t\t\t" +
+                _vm._s(_vm._f("numFormat")(_vm.data.population)) +
+                "\n\t\t\t\t"
+            )
+          ])
+        ]),
+        _vm._v(" "),
         _vm._m(0),
         _vm._v(" "),
-        _vm._m(1),
-        _vm._v(" "),
-        _vm._m(2)
+        _vm._m(1)
       ])
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(3),
+          _vm._m(2),
           _vm._v(" "),
           _c(
             "div",
@@ -76098,7 +77587,7 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(4),
+          _vm._m(3),
           _vm._v(" "),
           _c(
             "div",
@@ -76111,7 +77600,7 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(5),
+          _vm._m(4),
           _vm._v(" "),
           _c(
             "div",
@@ -76126,7 +77615,7 @@ var render = function() {
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(6),
+          _vm._m(5),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
             _c("div", { staticClass: "row" }, [
@@ -76171,7 +77660,7 @@ var render = function() {
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(7),
+          _vm._m(6),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
             _c("div", { staticClass: "row" }, [
@@ -76216,9 +77705,9 @@ var render = function() {
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(8),
+          _vm._m(7),
           _vm._v(" "),
-          _vm._m(9),
+          _vm._m(8),
           _vm._v(" "),
           _c(
             "h3",
@@ -76233,7 +77722,7 @@ var render = function() {
               "table",
               { staticClass: "table table-sm table-nowrap card-table" },
               [
-                _vm._m(10),
+                _vm._m(9),
                 _vm._v(" "),
                 _c(
                   "tbody",
@@ -76259,9 +77748,9 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(11),
+          _vm._m(10),
           _vm._v(" "),
-          _vm._m(12),
+          _vm._m(11),
           _vm._v(" "),
           _c(
             "h3",
@@ -76274,7 +77763,7 @@ var render = function() {
               "table",
               { staticClass: "table table-sm table-nowrap card-table" },
               [
-                _vm._m(13),
+                _vm._m(12),
                 _vm._v(" "),
                 _c(
                   "tbody",
@@ -76301,20 +77790,6 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col" }, [
-      _c("h6", { staticClass: "header-pretitle" }, [
-        _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
-      ]),
-      _vm._v(" "),
-      _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t4,500,000\n\t\t\t\t")
-      ])
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement
@@ -76708,6 +78183,17 @@ function normalizeComponent (
   }
 }
 
+
+/***/ }),
+
+/***/ "./node_modules/vue-numeric/dist/vue-numeric.min.js":
+/*!**********************************************************!*\
+  !*** ./node_modules/vue-numeric/dist/vue-numeric.min.js ***!
+  \**********************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(e,t){ true?module.exports=t(__webpack_require__(/*! accounting-js */ "./node_modules/accounting-js/dist/accounting.umd.js")):undefined}("undefined"!=typeof self?self:this,function(e){return function(e){function t(n){if(r[n])return r[n].exports;var i=r[n]={i:n,l:!1,exports:{}};return e[n].call(i.exports,i,i.exports,t),i.l=!0,i.exports}var r={};return t.m=e,t.c=r,t.d=function(e,r,n){t.o(e,r)||Object.defineProperty(e,r,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var r=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(r,"a",r),r},t.o=function(e,t){return Object.prototype.hasOwnProperty.call(e,t)},t.p="",t(t.s=1)}([function(e,t,r){"use strict";var n=r(4),i=r.n(n);t.a={name:"VueNumeric",props:{currency:{type:String,default:"",required:!1},max:{type:Number,default:Number.MAX_SAFE_INTEGER||9007199254740991,required:!1},min:{type:Number,default:Number.MIN_SAFE_INTEGER||-9007199254740991,required:!1},minus:{type:Boolean,default:!1,required:!1},placeholder:{type:String,default:"",required:!1},emptyValue:{type:[Number,String],default:"",required:!1},precision:{type:Number,default:0,required:!1},separator:{type:String,default:",",required:!1},thousandSeparator:{default:void 0,required:!1,type:String},decimalSeparator:{default:void 0,required:!1,type:String},outputType:{required:!1,type:String,default:"Number"},value:{type:[Number,String],default:0,required:!0},readOnly:{type:Boolean,default:!1,required:!1},readOnlyClass:{type:String,default:"",required:!1},currencySymbolPosition:{type:String,default:"prefix",required:!1}},data:function(){return{amount:""}},computed:{amountNumber:function(){return this.unformat(this.amount)},valueNumber:function(){return this.unformat(this.value)},decimalSeparatorSymbol:function(){return void 0!==this.decimalSeparator?this.decimalSeparator:","===this.separator?".":","},thousandSeparatorSymbol:function(){return void 0!==this.thousandSeparator?this.thousandSeparator:"."===this.separator?".":"space"===this.separator?" ":","},symbolPosition:function(){return this.currency?"suffix"===this.currencySymbolPosition?"%v %s":"%s %v":"%v"}},watch:{valueNumber:function(e){this.$refs.numeric!==document.activeElement&&(this.amount=this.format(e))},readOnly:function(e,t){var r=this;!1===t&&!0===e&&this.$nextTick(function(){r.$refs.readOnly.className=r.readOnlyClass})},separator:function(){this.process(this.valueNumber),this.amount=this.format(this.valueNumber)},currency:function(){this.process(this.valueNumber),this.amount=this.format(this.valueNumber)},precision:function(){this.process(this.valueNumber),this.amount=this.format(this.valueNumber)}},mounted:function(){var e=this;this.placeholder||(this.process(this.valueNumber),this.amount=this.format(this.valueNumber),setTimeout(function(){e.process(e.valueNumber),e.amount=e.format(e.valueNumber)},500)),this.readOnly&&(this.$refs.readOnly.className=this.readOnlyClass)},methods:{onBlurHandler:function(e){this.$emit("blur",e),this.amount=this.format(this.valueNumber)},onFocusHandler:function(e){this.$emit("focus",e),0===this.valueNumber?this.amount=null:this.amount=i.a.formatMoney(this.valueNumber,{symbol:"",format:"%v",thousand:"",decimal:this.decimalSeparatorSymbol,precision:Number(this.precision)})},onInputHandler:function(){this.process(this.amountNumber)},process:function(e){e>=this.max&&this.update(this.max),e<=this.min&&this.update(this.min),e>this.min&&e<this.max&&this.update(e),!this.minus&&e<0&&(this.min>=0?this.update(this.min):this.update(0))},update:function(e){var t=i.a.toFixed(e,this.precision),r="string"===this.outputType.toLowerCase()?t:Number(t);this.$emit("input",r)},format:function(e){return i.a.formatMoney(e,{symbol:this.currency,format:this.symbolPosition,precision:Number(this.precision),decimal:this.decimalSeparatorSymbol,thousand:this.thousandSeparatorSymbol})},unformat:function(e){var t="string"==typeof e&&""===e?this.emptyValue:e;return i.a.unformat(t,this.decimalSeparatorSymbol)}}}},function(e,t,r){"use strict";Object.defineProperty(t,"__esModule",{value:!0});var n=r(2),i={install:function(e){e.component(n.a.name,n.a)}};n.a.install=i.install,t.default=n.a},function(e,t,r){"use strict";var n=r(0),i=r(5),u=r(3),o=u(n.a,i.a,!1,null,null,null);t.a=o.exports},function(e,t){e.exports=function(e,t,r,n,i,u){var o,a=e=e||{},s=typeof e.default;"object"!==s&&"function"!==s||(o=e,a=e.default);var c="function"==typeof a?a.options:a;t&&(c.render=t.render,c.staticRenderFns=t.staticRenderFns,c._compiled=!0),r&&(c.functional=!0),i&&(c._scopeId=i);var l;if(u?(l=function(e){e=e||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext,e||"undefined"==typeof __VUE_SSR_CONTEXT__||(e=__VUE_SSR_CONTEXT__),n&&n.call(this,e),e&&e._registeredComponents&&e._registeredComponents.add(u)},c._ssrRegister=l):n&&(l=n),l){var m=c.functional,d=m?c.render:c.beforeCreate;m?(c._injectStyles=l,c.render=function(e,t){return l.call(t),d(e,t)}):c.beforeCreate=d?[].concat(d,l):[l]}return{esModule:o,exports:a,options:c}}},function(t,r){t.exports=e},function(e,t,r){"use strict";var n=function(){var e=this,t=e.$createElement,r=e._self._c||t;return e.readOnly?r("span",{ref:"readOnly"},[e._v(e._s(e.amount))]):r("input",{directives:[{name:"model",rawName:"v-model",value:e.amount,expression:"amount"}],ref:"numeric",attrs:{placeholder:e.placeholder,type:"tel"},domProps:{value:e.amount},on:{blur:e.onBlurHandler,input:[function(t){t.target.composing||(e.amount=t.target.value)},e.onInputHandler],focus:e.onFocusHandler}})},i=[],u={render:n,staticRenderFns:i};t.a=u}])});
 
 /***/ }),
 
@@ -91795,39 +93281,43 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var bootstrap_vue__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(bootstrap_vue__WEBPACK_IMPORTED_MODULE_1__);
 /* harmony import */ var highcharts_vue__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! highcharts-vue */ "./node_modules/highcharts-vue/dist/highcharts-vue.min.js");
 /* harmony import */ var highcharts_vue__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(highcharts_vue__WEBPACK_IMPORTED_MODULE_2__);
-/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
-/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! highcharts/modules/stock.js */ "./node_modules/highcharts/modules/stock.js");
-/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! highcharts/modules/map.js */ "./node_modules/highcharts/modules/map.js");
-/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! highcharts/modules/gantt.js */ "./node_modules/highcharts/modules/gantt.js");
-/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! highcharts/modules/drilldown.js */ "./node_modules/highcharts/modules/drilldown.js");
-/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! highcharts/highcharts-more.js */ "./node_modules/highcharts/highcharts-more.js");
-/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! highcharts/modules/solid-gauge.js */ "./node_modules/highcharts/modules/solid-gauge.js");
-/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ../../public/dashboard/fonts/feather/feather.min.css */ "./public/dashboard/fonts/feather/feather.min.css");
-/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ../../public/dashboard/css/theme.min.css */ "./public/dashboard/css/theme.min.css");
-/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _views_App__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./views/App */ "./resources/js/views/App.vue");
-/* harmony import */ var _views_dashboard_Home__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ./views/dashboard/Home */ "./resources/js/views/dashboard/Home.vue");
-/* harmony import */ var _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./views/dashboard/Enrollment */ "./resources/js/views/dashboard/Enrollment.vue");
-/* harmony import */ var _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./views/dashboard/Utilization */ "./resources/js/views/dashboard/Utilization.vue");
-/* harmony import */ var _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./views/dashboard/ServiceDelivery */ "./resources/js/views/dashboard/ServiceDelivery.vue");
-/* harmony import */ var _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./views/dashboard/FinancialHealth */ "./resources/js/views/dashboard/FinancialHealth.vue");
-/* harmony import */ var _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./views/dashboard/UploadData */ "./resources/js/views/dashboard/UploadData.vue");
-/* harmony import */ var _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./views/dashboard/Settings */ "./resources/js/views/dashboard/Settings.vue");
-/* harmony import */ var _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./views/dashboard/test/TestEnrollment */ "./resources/js/views/dashboard/test/TestEnrollment.vue");
-/* harmony import */ var _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./views/dashboard/test/TestUtilization */ "./resources/js/views/dashboard/test/TestUtilization.vue");
-/* harmony import */ var _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./views/dashboard/test/TestServiceDelivery */ "./resources/js/views/dashboard/test/TestServiceDelivery.vue");
-/* harmony import */ var _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./views/dashboard/test/TestFinancialHealth */ "./resources/js/views/dashboard/test/TestFinancialHealth.vue");
-/* harmony import */ var _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./views/dashboard/test/TestUploadData */ "./resources/js/views/dashboard/test/TestUploadData.vue");
-/* harmony import */ var _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./views/dashboard/test/TestSettings */ "./resources/js/views/dashboard/test/TestSettings.vue");
-/* harmony import */ var _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./views/dashboard/test/TestDataManagement */ "./resources/js/views/dashboard/test/TestDataManagement.vue");
+/* harmony import */ var vue_numeric__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-numeric */ "./node_modules/vue-numeric/dist/vue-numeric.min.js");
+/* harmony import */ var vue_numeric__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_numeric__WEBPACK_IMPORTED_MODULE_3__);
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! highcharts/modules/stock.js */ "./node_modules/highcharts/modules/stock.js");
+/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! highcharts/modules/map.js */ "./node_modules/highcharts/modules/map.js");
+/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! highcharts/modules/gantt.js */ "./node_modules/highcharts/modules/gantt.js");
+/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! highcharts/modules/drilldown.js */ "./node_modules/highcharts/modules/drilldown.js");
+/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! highcharts/highcharts-more.js */ "./node_modules/highcharts/highcharts-more.js");
+/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! highcharts/modules/solid-gauge.js */ "./node_modules/highcharts/modules/solid-gauge.js");
+/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vue-filter-number-format */ "./node_modules/vue-filter-number-format/dist/vue-filter-number-format.js");
+/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../public/dashboard/fonts/feather/feather.min.css */ "./public/dashboard/fonts/feather/feather.min.css");
+/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../public/dashboard/css/theme.min.css */ "./public/dashboard/css/theme.min.css");
+/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var _views_App__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./views/App */ "./resources/js/views/App.vue");
+/* harmony import */ var _views_dashboard_Home__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./views/dashboard/Home */ "./resources/js/views/dashboard/Home.vue");
+/* harmony import */ var _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./views/dashboard/Enrollment */ "./resources/js/views/dashboard/Enrollment.vue");
+/* harmony import */ var _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./views/dashboard/Utilization */ "./resources/js/views/dashboard/Utilization.vue");
+/* harmony import */ var _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./views/dashboard/ServiceDelivery */ "./resources/js/views/dashboard/ServiceDelivery.vue");
+/* harmony import */ var _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./views/dashboard/FinancialHealth */ "./resources/js/views/dashboard/FinancialHealth.vue");
+/* harmony import */ var _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./views/dashboard/UploadData */ "./resources/js/views/dashboard/UploadData.vue");
+/* harmony import */ var _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./views/dashboard/Settings */ "./resources/js/views/dashboard/Settings.vue");
+/* harmony import */ var _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./views/dashboard/test/TestEnrollment */ "./resources/js/views/dashboard/test/TestEnrollment.vue");
+/* harmony import */ var _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./views/dashboard/test/TestUtilization */ "./resources/js/views/dashboard/test/TestUtilization.vue");
+/* harmony import */ var _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./views/dashboard/test/TestServiceDelivery */ "./resources/js/views/dashboard/test/TestServiceDelivery.vue");
+/* harmony import */ var _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./views/dashboard/test/TestFinancialHealth */ "./resources/js/views/dashboard/test/TestFinancialHealth.vue");
+/* harmony import */ var _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./views/dashboard/test/TestUploadData */ "./resources/js/views/dashboard/test/TestUploadData.vue");
+/* harmony import */ var _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./views/dashboard/test/TestSettings */ "./resources/js/views/dashboard/test/TestSettings.vue");
+/* harmony import */ var _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./views/dashboard/test/TestDataManagement */ "./resources/js/views/dashboard/test/TestDataManagement.vue");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -91841,6 +93331,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 
 
+
  // load these modules as your need
 
 
@@ -91850,9 +93341,12 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 
 
+
+Vue.filter('numFormat', vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11___default.a);
 Vue.use(vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]);
 Vue.use(bootstrap_vue__WEBPACK_IMPORTED_MODULE_1___default.a);
-Vue.component('v-select', vue_select__WEBPACK_IMPORTED_MODULE_3___default.a);
+Vue.component('v-select', vue_select__WEBPACK_IMPORTED_MODULE_4___default.a);
+Vue.use(vue_numeric__WEBPACK_IMPORTED_MODULE_3___default.a);
 Vue.use(highcharts_vue__WEBPACK_IMPORTED_MODULE_2___default.a);
 /**
  * The following block of code may be used to automatically register your
@@ -91890,63 +93384,63 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]({
   routes: [{
     path: '',
     name: 'enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_14__["default"]
+    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
   }, {
     path: 'enrollment',
     name: 'enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_14__["default"]
+    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
   }, {
     path: 'utilization',
     name: 'utilization',
-    component: _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_15__["default"]
+    component: _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_17__["default"]
   }, {
     path: 'service-delivery',
     name: 'serviceDelivery',
-    component: _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_16__["default"]
+    component: _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_18__["default"]
   }, {
     path: 'financial-health',
     name: 'financialHealth',
-    component: _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_17__["default"]
+    component: _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_19__["default"]
   }, {
     path: 'upload-data',
     name: 'uploadData',
-    component: _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_18__["default"]
+    component: _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_20__["default"]
   }, {
     path: 'settings',
     name: "settings",
-    component: _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_19__["default"]
+    component: _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_21__["default"]
   }, {
     path: '/test/',
     name: 'test.enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_14__["default"]
+    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
   }, {
     path: '/test/enrollment',
     name: 'test.enrollment',
-    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_20__["default"]
+    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__["default"]
   }, {
     path: '/test/utilization',
     name: 'test.utilization',
-    component: _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_21__["default"]
+    component: _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_23__["default"]
   }, {
     path: '/test/service-delivery',
     name: 'test.serviceDelivery',
-    component: _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_22__["default"]
+    component: _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_24__["default"]
   }, {
     path: '/test/financial-health',
     name: 'test.financialHealth',
-    component: _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_23__["default"]
+    component: _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_25__["default"]
   }, {
     path: '/test/upload-data',
     name: 'test.uploadData',
-    component: _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_24__["default"]
+    component: _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_26__["default"]
   }, {
     path: '/test/settings',
     name: "test.settings",
-    component: _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_25__["default"]
+    component: _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_27__["default"]
   }, {
     path: '/test/data/management',
     name: 'test.datamanagement',
-    component: _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_26__["default"]
+    component: _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_28__["default"]
   }]
 });
 /**
@@ -91958,7 +93452,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]({
 var app = new Vue({
   el: '#app',
   components: {
-    App: _views_App__WEBPACK_IMPORTED_MODULE_12__["default"]
+    App: _views_App__WEBPACK_IMPORTED_MODULE_14__["default"]
   },
   router: router
 });

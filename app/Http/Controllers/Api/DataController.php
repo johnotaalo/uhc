@@ -73,36 +73,39 @@ class DataController extends Controller
                 'organization_description'  =>  $d[3]
             ];
 
-            $org = Organization::updateOrCreate(
-                [ 'organization_uid' =>  $organization['organization_uid'] ],
-                $organization
-            );
+            if($organization['organization_code'] != "" && !is_null($organization['organization_code'])){
 
-            $data_fields = [
-                'data_uid'                  =>  $d[4],
-                'data_name'                 =>  $d[5],
-                'data_code'                 =>  $d[6],
-                'data_description'          =>  $d[7]
-            ];
+                $org = Organization::updateOrCreate(
+                    [ 'organization_uid' =>  $organization['organization_uid'] ],
+                    $organization
+                );
 
-            $df = DataFields::updateOrCreate(
-                [ 'data_uid' =>  $data_fields['data_uid'] ],
-                $data_fields
-            );
+                $data_fields = [
+                    'data_uid'                  =>  $d[4],
+                    'data_name'                 =>  $d[5],
+                    'data_code'                 =>  $d[6],
+                    'data_description'          =>  $d[7]
+                ];
 
-            foreach ($dates as $key => $date) {
-                if ($d[$key != ""] && $d[$key] != null) {
-                    $org_data = [
-                        'upload_id'                 =>  $upload->id,
-                        'organization_id'           =>  $org->id,
-                        'data_id'                   =>  $df->id,
-                        'date'                      =>  date('Y-m-d', strtotime($date)),
-                        'number'                    =>  $d[$key]
-                    ];
+                $df = DataFields::updateOrCreate(
+                    [ 'data_uid' =>  $data_fields['data_uid'] ],
+                    $data_fields
+                );
 
-                    OrgData::create($org_data);
+                foreach ($dates as $key => $date) {
+                    if ($d[$key] != "" && $d[$key] != null) {
+                        $org_data = [
+                            'upload_id'                 =>  $upload->id,
+                            'organization_id'           =>  $org->id,
+                            'data_id'                   =>  $df->id,
+                            'date'                      =>  date('Y-m-d', strtotime($date)),
+                            'number'                    =>  $d[$key]
+                        ];
+
+                        OrgData::create($org_data);
+                    }
+                    
                 }
-                
             }
 
         }
@@ -126,30 +129,48 @@ class DataController extends Controller
 
     function getPilotCountyIPDOPDData(Request $request){
         $county_id = $request->input('id');
+        $IPD = \App\Enums\DataType::InPatient;
+        $OPD = \App\Enums\DataType::OutPatient;
 
-        $ipdFields = [
-            'Inpatient Admissions Over Five',
-            'Inpatient Admissions Under Five'
-        ];
+        $countyPopulation = \App\CountyPopulation::where('county_id', $county_id)->first();
 
-        $opdFields = [
-            "OPD Attendance <5yrs Female  New clients",
-            "OPD Attendance <5yrs Female  Re-visits",
-            "OPD Attendance <5yrs Male New clients",
-            "OPD Attendance <5yrs Male Re-visits",
-            "OPD Attendance >5yrs Female New clients",
-            "OPD Attendance >5yrs Female Re-visits",
-            "OPD Attendance >5yrs Male New clients",
-            "OPD Attendance >5yrs Male Re-visits"
-        ];
+        $data = [];
 
-        return DataWithType::all();
+        $ipdFields = DataWithType::where('type', $IPD)->get();
+        $opdFields = DataWithType::where('type', $OPD)->get();
+
+        $ipdFieldsArray = $ipdFields->map(function($field){
+            return $field->data_id;
+        });
+
+        $opdFieldsArray = $opdFields->map(function($field){
+            return $field->data_id;
+        });
+
+
 
         if ($county_id != "") {
-            return OrgData::with('upload', 'data')->first();
+            $ipdQuery = OrgData::whereIn('data_id', $ipdFieldsArray);
+            $ipdQuery->whereHas('upload', function($query) use ($county_id){
+                $query->where('county_id', $county_id);
+            });
+
+            $opdQuery = OrgData::whereIn('data_id', $opdFieldsArray);
+            $opdQuery->whereHas('upload', function($query) use ($county_id){
+                $query->where('county_id', $county_id);
+            });
+
+
+            $data['ipd'] = (int) $ipdQuery->sum('number');
+            $data['opd'] = (int) $opdQuery->sum('number');
+
+            // dd($opdQuery->getQuery());
+
+            // \DB::connection()->enableQueryLog();
+            // dd(\DB::getQueryLog());
         }
 
-        return [];
+        return $data;
     }
 
     function addDataWithType(Request $request){
@@ -163,5 +184,15 @@ class DataController extends Controller
         }
 
         return DataWithType::where('type', $type)->get();
+    }
+
+    public function getCountyPopulation(Request $request){
+        $county = $request->query('q');
+
+        if ($county == 'national') {
+            return \App\CountyPopulation::whereRaw('year = (select max(`year`) from county_populations)')->sum('population');
+        }else{
+            return \App\CountyPopulation::where('county_id', $county)->first()->population;
+        }
     }
 }

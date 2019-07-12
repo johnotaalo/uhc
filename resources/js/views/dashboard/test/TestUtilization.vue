@@ -11,7 +11,7 @@
 						Total Population
 					</h6>
 					<h1 class="header-title">
-						4,500,000
+						{{ data.population | numFormat }}
 					</h1>
 				</div>
 
@@ -261,8 +261,11 @@
 				options: [
 					{ value: '', text: 'National' },
 				],
+				colors: colors,
 				selected: "",
 				data: {
+					population: 0,
+					opdIpdData: [],
 					opdUtilization: [],
 					ipdUtilization: [],
 					referralFacilities: [
@@ -338,52 +341,7 @@
 						}
 					]
 				},
-				opdIpd: {
-					chart: {
-				        type: 'column'
-				    },
-				    title: {
-				        text: 'OPD and IPD Utilization'
-				    },
-				    xAxis: {
-				        categories: [
-				            'OPD',
-				            'IPD'
-				        ],
-				        crosshair: true
-				    },
-				    yAxis: {
-				        min: 0,
-				        title: {
-				            text: 'Percentage'
-				        }
-				    },
-				    tooltip: {
-				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-				        footerFormat: '</table>',
-				        shared: true,
-				        useHTML: true
-				    },
-				    plotOptions: {
-				        column: {
-				            pointPadding: 0.2,
-				            borderWidth: 0
-				        }
-				    },
-				    series: [{
-				        name: 'Pilot Area',
-				        data: [48.9, 38.8],
-				        color: colors.blue
-
-				    }, {
-				        name: 'Non-Pilot Area (Average)',
-				        data: [42.4, 33.2],
-				        color: colors.orange
-
-				    }]
-				},
+				
 				opdLevelofFacility: {
 					chart: {
 				        type: 'column'
@@ -634,6 +592,7 @@
 			}
 		},
 		created(){
+			this.getCountyPopulation(this.selected);
 			this.getPilotAreas();
 		},
 		methods: {
@@ -652,12 +611,66 @@
 				axios.post('/api/data/counties/pilot/opd-ipd', { id: county_id })
 				.then((res) => {
 					console.log(res)
+					this.data.opdIpdData = res.data
+				})
+			},
+
+			getCountyPopulation(val){
+				if(val == ""){
+					val = 'national'
+				}
+				axios.get(`/api/data/counties/population?q=${val}`)
+				.then((res) => {
+					this.data.population = res.data
 				})
 			}
 		},
 		watch: {
 			selected: function(val){
+				this.getCountyPopulation(val)
 				this.getIPDOPDPilotCountyDetails(val)
+			}
+		},
+		computed: {
+			opdIpd: function(){
+				return {
+					chart: {
+				        type: 'column'
+				    },
+				    title: {
+				        text: 'OPD and IPD Utilization'
+				    },
+				    xAxis: {
+				        categories: [
+				            'OPD',
+				            'IPD'
+				        ],
+				        crosshair: true
+				    },
+				    yAxis: {
+				        min: 0,
+				        title: {
+				            text: 'Percentage'
+				        }
+				    },
+				    plotOptions: {
+				        column: {
+				            pointPadding: 0.2,
+				            borderWidth: 0
+				        }
+				    },
+				    series: [{
+				        name: 'Pilot Area',
+				        data: [(parseInt(this.data.opdIpdData.opd) / this.data.population) * 100, (parseInt(this.data.opdIpdData.ipd) / this.data.population) * 100],
+				        color: this.colors.blue
+
+				    }, {
+				        name: 'Non-Pilot Area (Average)',
+				        data: [0, 0],
+				        color: this.colors.orange
+
+				    }]
+				}
 			}
 		}
 	}
