@@ -12,6 +12,7 @@ use App\Upload;
 use App\Organization;
 use App\DataFields;
 use App\OrgData;
+use App\DataWithType;
 
 use PhpOffice\PhpSpreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -24,7 +25,7 @@ class DataController extends Controller
 
     function getUploadComponentData(){
     	return [
-    		'counties' => County::where('is_pilot', 1)->get()
+    		'counties' => County::orderBy('county')->get()
     	];
     }
 
@@ -35,6 +36,12 @@ class DataController extends Controller
     function updatePilotCounties(Request $request){
         $req = $request->only('counties');
         
+        return $counties;
+    }
+
+    function getPilotCounties(Request $request){
+        $counties = County::select('id', 'county')->where('is_pilot', true)->get();
+
         return $counties;
     }
 
@@ -101,5 +108,60 @@ class DataController extends Controller
         }
 
         return [ 'type' =>  'success', 'message' => 'Successfully uploaded data to database' ];
+    }
+
+    function getDataNamesByType(Request $request){
+        return DataWithType::where('type', $request->type)->get();
+    }
+
+    function searchDataField(Request $request){
+        $query = $request->query('q');
+        return DataFields::where('data_name', 'LIKE', "%{$query}%")
+        ->whereNotIn('id', function($query){
+            $query->select('data_id')
+                    ->from('data_with_types');
+        })->get();
+    }
+
+
+    function getPilotCountyIPDOPDData(Request $request){
+        $county_id = $request->input('id');
+
+        $ipdFields = [
+            'Inpatient Admissions Over Five',
+            'Inpatient Admissions Under Five'
+        ];
+
+        $opdFields = [
+            "OPD Attendance <5yrs Female  New clients",
+            "OPD Attendance <5yrs Female  Re-visits",
+            "OPD Attendance <5yrs Male New clients",
+            "OPD Attendance <5yrs Male Re-visits",
+            "OPD Attendance >5yrs Female New clients",
+            "OPD Attendance >5yrs Female Re-visits",
+            "OPD Attendance >5yrs Male New clients",
+            "OPD Attendance >5yrs Male Re-visits"
+        ];
+
+        return DataWithType::all();
+
+        if ($county_id != "") {
+            return OrgData::with('upload', 'data')->first();
+        }
+
+        return [];
+    }
+
+    function addDataWithType(Request $request){
+        $type = $request->input('type');
+
+        foreach($request->input('data') as $d){
+            DataWithType::create([
+                'data_id'   =>  $d,
+                'type'      =>  $type
+            ]);
+        }
+
+        return DataWithType::where('type', $type)->get();
     }
 }

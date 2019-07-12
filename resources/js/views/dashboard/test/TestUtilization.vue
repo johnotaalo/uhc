@@ -259,14 +259,12 @@
 			};
 			return {
 				options: [
-					{ value: 'national', text: 'National' },
-					{ value: 'isiolo', text: 'Isiolo' },
-					{ value: 'national', text: 'Kisumu' },
-					{ value: 'national', text: 'Machakos' },
-					{ value: 'national', text: 'Nyeri' },
+					{ value: '', text: 'National' },
 				],
 				selected: "",
 				data: {
+					opdUtilization: [],
+					ipdUtilization: [],
 					referralFacilities: [
 						{
 							name: "CHANDARIA DISPENSARY",
@@ -642,8 +640,24 @@
 			getPilotAreas: function(){
 				axios.get('/api/counties/pilot')
 				.then((res) => {
-					console.log(res);
+					var options = _.map(res.data, (o) => {
+						return { value: o.id, text: o.county }
+					})
+
+					var merge =this.options.concat(options)
+					this.options = merge
 				});
+			},
+			getIPDOPDPilotCountyDetails(county_id){
+				axios.post('/api/data/counties/pilot/opd-ipd', { id: county_id })
+				.then((res) => {
+					console.log(res)
+				})
+			}
+		},
+		watch: {
+			selected: function(val){
+				this.getIPDOPDPilotCountyDetails(val)
 			}
 		}
 	}

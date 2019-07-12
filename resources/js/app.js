@@ -14,6 +14,8 @@ import VueRouter from 'vue-router'
 import BootstrapVue from 'bootstrap-vue'
 import HighchartsVue from 'highcharts-vue';
 
+import vSelect from 'vue-select'
+
 // load these modules as your need
 import loadStock from 'highcharts/modules/stock.js';
 import loadMap from 'highcharts/modules/map.js';
@@ -27,7 +29,7 @@ import loadSolidGauge from 'highcharts/modules/solid-gauge.js';
 
 Vue.use(VueRouter)
 Vue.use(BootstrapVue)
-
+Vue.component('v-select', vSelect)
 
 Vue.use(HighchartsVue);
 /**
@@ -56,6 +58,14 @@ import ServiceDelivery from './views/dashboard/ServiceDelivery'
 import FinancialHealth from './views/dashboard/FinancialHealth'
 import UploadData from './views/dashboard/UploadData'
 import Settings from './views/dashboard/Settings'
+// Test Pages
+import TestEnrollment from './views/dashboard/test/TestEnrollment'
+import TestUtilization from './views/dashboard/test/TestUtilization'
+import TestServiceDelivery from './views/dashboard/test/TestServiceDelivery'
+import TestFinancialHealth from './views/dashboard/test/TestFinancialHealth'
+import TestUploadData from './views/dashboard/test/TestUploadData'
+import TestSettings from './views/dashboard/test/TestSettings'
+import TestDataManagement from './views/dashboard/test/TestDataManagement'
 
  const router = new VueRouter({
  	mode: 'history',
@@ -104,32 +114,37 @@ import Settings from './views/dashboard/Settings'
 	 	{
 	 		path: '/test/enrollment',
 	 		name: 'test.enrollment',
-	 		component: Enrollment
+	 		component: TestEnrollment
 	 	},
 	 	{
 	 		path: '/test/utilization',
 	 		name: 'test.utilization',
-	 		component: Utilization
+	 		component: TestUtilization
 	 	},
 	 	{
 	 		path: '/test/service-delivery',
 	 		name: 'test.serviceDelivery',
-	 		component: ServiceDelivery
+	 		component: TestServiceDelivery
 	 	},
 	 	{
 	 		path: '/test/financial-health',
 	 		name: 'test.financialHealth',
-	 		component: FinancialHealth
+	 		component: TestFinancialHealth
 	 	},
 	 	{
 	 		path: '/test/upload-data',
 	 		name: 'test.uploadData',
-	 		component: UploadData
+	 		component: TestUploadData
 	 	},
 	 	{
 	 		path: '/test/settings',
 	 		name: "test.settings",
-	 		component: Settings
+	 		component: TestSettings
+	 	},
+	 	{
+	 		path: '/test/data/management',
+	 		name: 'test.datamanagement',
+	 		component: TestDataManagement
 	 	}
  	]
  });
