@@ -173,6 +173,51 @@ class DataController extends Controller
         return $data;
     }
 
+    function getOPDIPDLevelofFacility(Request $request){
+        $county_id = $request->input('id');
+        $dataType = "";
+        if($request->dataType == 'opd'){
+            $dataType = \App\Enums\DataType::OutPatient;
+        }elseif($request->dataType == 'ipd'){
+            $dataType = \App\Enums\DataType::InPatient;
+        }
+
+        $fields = DataWithType::where('type', $dataType)->pluck('id')->toArray();
+        $fieldsString = implode(',', $fields);
+        $data = [];
+
+        if ($county_id != "") {
+            $sql = "SELECT
+                        facility_level,
+                        SUM( NO ) AS totals
+                    FROM
+                        (
+                        SELECT
+                            f.facility_level,
+                            COALESCE ( SUM( number ), 0 ) AS `no` 
+                        FROM
+                            `org_data` od
+                            JOIN data_fields d ON d.id = od.data_id
+                            JOIN data_with_types t ON t.data_id = d.id
+                            JOIN organizations o ON o.id = od.organization_id
+                            JOIN facilities f ON f.mfl_code = o.organization_code
+                            JOIN uploads u ON u.id = od.upload_id 
+                        WHERE
+                            t.type = {$dataType} 
+                            AND t.id IN ( {$fieldsString} ) 
+                            AND od.number IS NOT NULL 
+                            AND u.county_id = {$county_id} 
+                        GROUP BY
+                            f.facility_level 
+                        ) x 
+                    GROUP BY
+                        facility_level";
+            $data = \DB::select($sql);
+        }
+
+        return $data;
+    }
+
     function addDataWithType(Request $request){
         $type = $request->input('type');
 

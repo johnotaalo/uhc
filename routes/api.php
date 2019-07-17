@@ -26,6 +26,7 @@ Route::get('counties/pilot', 'Api\DataController@getPilotCounties');
 
 Route::prefix('data')->group(function(){
 	Route::post('counties/pilot/opd-ipd', 'Api\DataController@getPilotCountyIPDOPDData');
+	Route::post('counties/facility/level/{dataType}', 'Api\DataController@getOPDIPDLevelofFacility');
 
 	Route::get('types', function(){
 		return \App\Enums\DataType::toSelectArray();

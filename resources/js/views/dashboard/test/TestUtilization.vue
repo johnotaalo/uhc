@@ -266,6 +266,8 @@
 				data: {
 					population: 0,
 					opdIpdData: [],
+					opdFacilityLevelData: [],
+					ipdFacilityLevelData: [],
 					opdUtilization: [],
 					ipdUtilization: [],
 					referralFacilities: [
@@ -340,102 +342,6 @@
 							los: 8
 						}
 					]
-				},
-				
-				opdLevelofFacility: {
-					chart: {
-				        type: 'column'
-				    },
-				    title: {
-				        text: 'OPD Utilization by Level of Facility'
-				    },
-				    xAxis: {
-				        categories: [
-				            'Level 2',
-				            'Level 3',
-				            'Level 4',
-				            'Level 5'
-				        ],
-				        crosshair: true
-				    },
-				    yAxis: {
-				        min: 0,
-				        title: {
-				            text: 'Percentage'
-				        }
-				    },
-				    tooltip: {
-				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-				        footerFormat: '</table>',
-				        shared: true,
-				        useHTML: true
-				    },
-				    plotOptions: {
-				        column: {
-				            pointPadding: 0.2,
-				            borderWidth: 0
-				        }
-				    },
-				    series: [{
-				        name: 'Pilot Area',
-				        data: [48.9, 38.8, 39.3, 41.4],
-				        color: colors.blue
-
-				    }, {
-				        name: 'Non-Pilot Area (Average)',
-				        data: [42.4, 33.2, 34.5, 39.7],
-				        color: colors.orange
-
-				    }]
-				},
-				ipdLevelofFacility: {
-					chart: {
-				        type: 'column'
-				    },
-				    title: {
-				        text: 'IPD Utilization by Level of Facility'
-				    },
-				    xAxis: {
-				        categories: [
-				            'Level 3',
-				            'Level 4',
-				            'Level 5'
-				        ],
-				        crosshair: true
-				    },
-				    yAxis: {
-				        min: 0,
-				        title: {
-				            text: 'Percentage'
-				        }
-				    },
-				    tooltip: {
-				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} mm</b></td></tr>',
-				        footerFormat: '</table>',
-				        shared: true,
-				        useHTML: true
-				    },
-				    plotOptions: {
-				        column: {
-				            pointPadding: 0.2,
-				            borderWidth: 0
-				        }
-				    },
-				    series: [{
-				        name: 'Pilot Area',
-				        data: [48.9, 38.8, 39.3],
-				        color: colors.blue
-
-				    }, {
-				        name: 'Non-Pilot Area (Average)',
-				        data: [42.4, 33.2, 34.5],
-				        color: colors.orange
-
-				    }]
 				},
 				opdUtilization: {
 					nonPilot: {
@@ -610,8 +516,21 @@
 			getIPDOPDPilotCountyDetails(county_id){
 				axios.post('/api/data/counties/pilot/opd-ipd', { id: county_id })
 				.then((res) => {
-					console.log(res)
 					this.data.opdIpdData = res.data
+				})
+			},
+
+			getOPDLevelofFacilityDetails(county_id){
+				axios.post('/api/data/counties/facility/level/opd', { id: county_id })
+				.then((res) => {
+					this.data.opdFacilityLevelData = res.data
+				})
+			},
+
+			getIPDLevelofFacilityDetails(county_id){
+				axios.post('/api/data/counties/facility/level/ipd', { id: county_id })
+				.then((res) => {
+					this.data.ipdFacilityLevelData = res.data
 				})
 			},
 
@@ -629,6 +548,8 @@
 			selected: function(val){
 				this.getCountyPopulation(val)
 				this.getIPDOPDPilotCountyDetails(val)
+				this.getOPDLevelofFacilityDetails(val)
+				this.getIPDLevelofFacilityDetails(val)
 			}
 		},
 		computed: {
@@ -667,6 +588,120 @@
 				    }, {
 				        name: 'Non-Pilot Area (Average)',
 				        data: [0, 0],
+				        color: this.colors.orange
+
+				    }]
+				}
+			},
+			opdLevelofFacility: function(){
+				var categories = _.map(this.data.opdFacilityLevelData, (o) => {
+					return o.facility_level
+				})
+
+				var pilotAreaData = _.map(this.data.opdFacilityLevelData, (o) => {
+					return parseInt(o.totals)
+				})
+
+				var nonPilotAreaData = _.map(categories, (o) => {
+					return 0
+				})
+
+				return {
+					chart: {
+				        type: 'column'
+				    },
+				    title: {
+				        text: 'OPD Utilization by Level of Facility'
+				    },
+				    xAxis: {
+				        categories: categories,
+				        crosshair: true
+				    },
+				    yAxis: {
+				        min: 0,
+				        title: {
+				            text: 'Population'
+				        }
+				    },
+				    tooltip: {
+				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+				            '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+				        footerFormat: '</table>',
+				        shared: true,
+				        useHTML: true
+				    },
+				    plotOptions: {
+				        column: {
+				            pointPadding: 0.2,
+				            borderWidth: 0
+				        }
+				    },
+				    series: [{
+				        name: 'Pilot Area',
+				        data: pilotAreaData,
+				        color: this.colors.blue
+
+				    }, {
+				        name: 'Non-Pilot Area (Average)',
+				        data: nonPilotAreaData,
+				        color: this.colors.orange
+
+				    }]
+				}
+			},
+			ipdLevelofFacility: function(){
+				var categories = _.map(this.data.ipdFacilityLevelData, (o) => {
+					return o.facility_level
+				})
+
+				var pilotAreaData = _.map(this.data.ipdFacilityLevelData, (o) => {
+					return parseInt(o.totals)
+				})
+
+				var nonPilotAreaData = _.map(categories, (o) => {
+					return 0
+				})
+
+				return {
+					chart: {
+				        type: 'column'
+				    },
+				    title: {
+				        text: 'IPD Utilization by Level of Facility'
+				    },
+				    xAxis: {
+				        categories: categories,
+				        crosshair: true
+				    },
+				    yAxis: {
+				        min: 0,
+				        title: {
+				            text: 'Population'
+				        }
+				    },
+				    tooltip: {
+				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+				            '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+				        footerFormat: '</table>',
+				        shared: true,
+				        useHTML: true
+				    },
+				    plotOptions: {
+				        column: {
+				            pointPadding: 0.2,
+				            borderWidth: 0
+				        }
+				    },
+				    series: [{
+				        name: 'Pilot Area',
+				        data: pilotAreaData,
+				        color: this.colors.blue
+
+				    }, {
+				        name: 'Non-Pilot Area (Average)',
+				        data: nonPilotAreaData,
 				        color: this.colors.orange
 
 				    }]

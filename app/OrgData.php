@@ -18,6 +18,10 @@ class OrgData extends Model
     	return $this->belongsTo('App\Upload', 'upload_id');
     }
 
+    public function organization(){
+    	return $this->belongsTo('App\Organization', 'organization_id', 'id');
+    }
+
     public function getCountyAttribute($value){
     	return $this->upload->county;
     }
