@@ -11,7 +11,7 @@
 						Total Population
 					</h6>
 					<h1 class="header-title">
-						4,500,000
+						0
 					</h1>
 				</div>
 
@@ -20,7 +20,7 @@
 						Enrolled Population
 					</h6>
 					<h1 class="header-title">
-						1,500,000
+						0
 					</h1>
 				</div>
 
@@ -29,7 +29,7 @@
 						% of target population enrolled
 					</h6>
 					<h1 class="header-title">
-						33%
+						0%
 					</h1>
 				</div>
 			</div> <!-- / .row -->

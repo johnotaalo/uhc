@@ -74809,7 +74809,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t4,500,000\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0\n\t\t\t\t")
       ])
     ])
   },
@@ -74823,7 +74823,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t1,500,000\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0\n\t\t\t\t")
       ])
     ])
   },
@@ -74837,7 +74837,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t33%\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0%\n\t\t\t\t")
       ])
     ])
   },
@@ -93609,7 +93609,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]({
   }, {
     path: '/test/',
     name: 'test.enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
+    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__["default"]
   }, {
     path: '/test/enrollment',
     name: 'test.enrollment',

@@ -114,7 +114,7 @@ import TestDataManagement from './views/dashboard/test/TestDataManagement'
 	 	{
 	 		path: '/test/',
 	 		name: 'test.enrollment',
-	 		component: Enrollment
+	 		component: TestEnrollment
 	 	},
 	 	{
 	 		path: '/test/enrollment',
