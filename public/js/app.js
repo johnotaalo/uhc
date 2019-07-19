@@ -6369,6 +6369,8 @@ __webpack_require__.r(__webpack_exports__);
         value: '',
         text: 'National'
       }],
+      areas: ["Pilot", "Non Pilot"],
+      sectors: ["Private", "Public"],
       colors: colors,
       selected: "",
       data: {
@@ -6379,6 +6381,8 @@ __webpack_require__.r(__webpack_exports__);
         referralData: [],
         opdUtilization: [],
         ipdUtilization: [],
+        ipdSectorUtilization: [],
+        opdSectorUtilization: [],
         referralFacilities: [{
           name: "CHANDARIA DISPENSARY",
           county: "Nairobi",
@@ -6599,10 +6603,19 @@ __webpack_require__.r(__webpack_exports__);
     this.getCountyPopulation(this.selected);
     this.getPilotAreas();
     this.getFacilityReferrals();
+    this.getUtilizationSectorData();
   },
   methods: {
-    getPilotAreas: function getPilotAreas() {
+    getUtilizationSectorData: function getUtilizationSectorData() {
       var _this = this;
+
+      axios.get('/api/data/utilization/sector/opd-ipd').then(function (res) {
+        _this.data.ipdSectorUtilization = res.data[0];
+        _this.data.opdSectorUtilization = res.data[1];
+      });
+    },
+    getPilotAreas: function getPilotAreas() {
+      var _this2 = this;
 
       axios.get('/api/counties/pilot').then(function (res) {
         var options = _.map(res.data, function (o) {
@@ -6612,56 +6625,56 @@ __webpack_require__.r(__webpack_exports__);
           };
         });
 
-        var merge = _this.options.concat(options);
+        var merge = _this2.options.concat(options);
 
-        _this.options = merge;
+        _this2.options = merge;
       });
     },
     getIPDOPDPilotCountyDetails: function getIPDOPDPilotCountyDetails(county_id) {
-      var _this2 = this;
+      var _this3 = this;
 
       axios.post('/api/data/counties/pilot/opd-ipd', {
         id: county_id
       }).then(function (res) {
-        _this2.data.opdIpdData = res.data;
+        _this3.data.opdIpdData = res.data;
       });
     },
     getOPDLevelofFacilityDetails: function getOPDLevelofFacilityDetails(county_id) {
-      var _this3 = this;
+      var _this4 = this;
 
       axios.post('/api/data/counties/facility/level/opd', {
         id: county_id
       }).then(function (res) {
-        _this3.data.opdFacilityLevelData = res.data;
+        _this4.data.opdFacilityLevelData = res.data;
       });
     },
     getIPDLevelofFacilityDetails: function getIPDLevelofFacilityDetails(county_id) {
-      var _this4 = this;
+      var _this5 = this;
 
       axios.post('/api/data/counties/facility/level/ipd', {
         id: county_id
       }).then(function (res) {
-        _this4.data.ipdFacilityLevelData = res.data;
+        _this5.data.ipdFacilityLevelData = res.data;
       });
     },
     getCountyPopulation: function getCountyPopulation(val) {
-      var _this5 = this;
+      var _this6 = this;
 
       if (val == "") {
         val = 'national';
       }
 
       axios.get("/api/data/counties/population?q=".concat(val)).then(function (res) {
-        _this5.data.population = res.data;
+        _this6.data.population = res.data;
       });
     },
     getFacilityReferrals: function getFacilityReferrals() {
-      var _this6 = this;
+      var _this7 = this;
 
       axios.get('/api/data/referrals').then(function (res) {
         var _data = _.orderBy(res.data, ['referrals'], ['desc']);
 
-        _this6.data.referralData = _data;
+        _this7.data.referralData = _data;
       });
     }
   },
@@ -6679,6 +6692,124 @@ __webpack_require__.r(__webpack_exports__);
     },
     top10referrals: function top10referrals() {
       return this.data.referralData.slice(0, 10);
+    },
+    ipdSectorUtilizationGraphs: function ipdSectorUtilizationGraphs() {
+      var _this8 = this;
+
+      var charts = {};
+
+      var colors = _.map(this.colors, function (color) {
+        return color;
+      });
+
+      _.forOwn(this.areas, function (area) {
+        charts[area] = {};
+        var data = [];
+
+        _.forOwn(_this8.sectors, function (sector, k) {
+          var selected = _.find(_this8.data.ipdSectorUtilization, ['facility_owner', sector]);
+
+          if (selected !== undefined) {
+            data.push({
+              name: sector,
+              y: parseInt(selected.number),
+              color: colors[k]
+            });
+          }
+        });
+
+        console.log(data);
+        charts[area] = {
+          chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+          },
+          title: {
+            text: area + ' Area'
+          },
+          tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+          },
+          plotOptions: {
+            pie: {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                enabled: false
+              },
+              showInLegend: true
+            }
+          },
+          series: [{
+            name: area + ' Area',
+            colorByPoint: true,
+            data: data
+          }]
+        };
+      });
+
+      return charts;
+    },
+    opdSectorUtilizationGraphs: function opdSectorUtilizationGraphs() {
+      var _this9 = this;
+
+      var charts = {};
+
+      var colors = _.map(this.colors, function (color) {
+        return color;
+      });
+
+      _.forOwn(this.areas, function (area) {
+        charts[area] = {};
+        var data = [];
+
+        _.forOwn(_this9.sectors, function (sector, k) {
+          var selected = _.find(_this9.data.opdSectorUtilization, ['facility_owner', sector]);
+
+          if (selected !== undefined) {
+            data.push({
+              name: sector,
+              y: parseInt(selected.number),
+              color: colors[k]
+            });
+          }
+        });
+
+        console.log(data);
+        charts[area] = {
+          chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: 'pie'
+          },
+          title: {
+            text: area + ' Area'
+          },
+          tooltip: {
+            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+          },
+          plotOptions: {
+            pie: {
+              allowPointSelect: true,
+              cursor: 'pointer',
+              dataLabels: {
+                enabled: false
+              },
+              showInLegend: true
+            }
+          },
+          series: [{
+            name: area + ' Area',
+            colorByPoint: true,
+            data: data
+          }]
+        };
+      });
+
+      return charts;
     },
     opdIpd: function opdIpd() {
       return {
@@ -77690,7 +77821,9 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.opdUtilization.nonPilot }
+                    attrs: {
+                      options: _vm.opdSectorUtilizationGraphs["Non Pilot"]
+                    }
                   })
                 ],
                 1
@@ -77701,7 +77834,7 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.opdUtilization.pilot }
+                    attrs: { options: _vm.opdSectorUtilizationGraphs["Pilot"] }
                   })
                 ],
                 1
@@ -77712,7 +77845,7 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.opdUtilization.pilot }
+                    attrs: { options: _vm.opdSectorUtilizationGraphs["Pilot"] }
                   })
                 ],
                 1
@@ -77735,7 +77868,9 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.ipdUtilization.nonPilot }
+                    attrs: {
+                      options: _vm.ipdSectorUtilizationGraphs["Non Pilot"]
+                    }
                   })
                 ],
                 1
@@ -77746,7 +77881,7 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.ipdUtilization.pilot }
+                    attrs: { options: _vm.ipdSectorUtilizationGraphs["Pilot"] }
                   })
                 ],
                 1
@@ -77757,7 +77892,7 @@ var render = function() {
                 { staticClass: "col" },
                 [
                   _c("highcharts", {
-                    attrs: { options: _vm.ipdUtilization.pilot }
+                    attrs: { options: _vm.ipdSectorUtilizationGraphs["Pilot"] }
                   })
                 ],
                 1

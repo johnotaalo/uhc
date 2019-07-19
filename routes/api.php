@@ -39,4 +39,5 @@ Route::prefix('data')->group(function(){
 	Route::get('counties/population', 'Api\DataController@getCountyPopulation');
 
 	Route::get('referrals', 'Api\DataController@getFacilityReferralData');
+	Route::get('utilization/sector/opd-ipd', 'Api\DataController@getOPDIPDBySector');
 });

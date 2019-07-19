@@ -264,4 +264,31 @@ class DataController extends Controller
 
         return $data;
     }
+
+    public function getOPDIPDBySector(){
+        $sql = "SELECT
+                    f.facility_owner,
+                    IF(c.is_pilot,'Pilot','Non Pilot') as area,
+                    t.type,
+                    SUM( number ) AS number 
+                FROM
+                    org_data d
+                    JOIN organizations o ON o.id = d.organization_id
+                    JOIN facilities f ON f.mfl_code = o.organization_code
+                    JOIN uploads u ON u.id = d.upload_id
+                    JOIN counties c ON c.id = u.county_id 
+                    AND c.is_pilot IS TRUE
+                    JOIN data_fields df ON df.id = d.data_id
+                    JOIN data_with_types t ON t.data_id = df.id AND t.type IN (0, 1)
+                GROUP BY
+                    f.facility_owner, IF(c.is_pilot,'Pilot','Non Pilot'), t.type";
+
+        $data = \DB::select($sql);
+        $cleanedData = [];
+        foreach($data as $d){
+            $cleanedData[$d->type][] = $d;
+        }
+
+        return $cleanedData;
+    }
 }

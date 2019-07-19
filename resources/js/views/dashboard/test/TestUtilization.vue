@@ -97,13 +97,13 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col">
-								<highcharts :options="opdUtilization.nonPilot"></highcharts>
+								<highcharts :options="opdSectorUtilizationGraphs['Non Pilot']"></highcharts>
 							</div>
 							<div class="col">
-								<highcharts :options="opdUtilization.pilot"></highcharts>
+								<highcharts :options="opdSectorUtilizationGraphs['Pilot']"></highcharts>
 							</div>
 							<div class="col">
-								<highcharts :options="opdUtilization.pilot"></highcharts>
+								<highcharts :options="opdSectorUtilizationGraphs['Pilot']"></highcharts>
 							</div>
 						</div>
 					</div>
@@ -126,13 +126,13 @@
 					<div class="card-body">
 						<div class="row">
 							<div class="col">
-								<highcharts :options="ipdUtilization.nonPilot"></highcharts>
+								<highcharts :options="ipdSectorUtilizationGraphs['Non Pilot']"></highcharts>
 							</div>
 							<div class="col">
-								<highcharts :options="ipdUtilization.pilot"></highcharts>
+								<highcharts :options="ipdSectorUtilizationGraphs['Pilot']"></highcharts>
 							</div>
 							<div class="col">
-								<highcharts :options="ipdUtilization.pilot"></highcharts>
+								<highcharts :options="ipdSectorUtilizationGraphs['Pilot']"></highcharts>
 							</div>
 						</div>
 					</div>
@@ -261,6 +261,8 @@
 				options: [
 					{ value: '', text: 'National' },
 				],
+				areas: ["Pilot", "Non Pilot"],
+				sectors: ["Private", "Public"],
 				colors: colors,
 				selected: "",
 				data: {
@@ -271,6 +273,8 @@
 					referralData: [],
 					opdUtilization: [],
 					ipdUtilization: [],
+					ipdSectorUtilization: [],
+					opdSectorUtilization: [],
 					referralFacilities: [
 						{
 							name: "CHANDARIA DISPENSARY",
@@ -502,8 +506,16 @@
 			this.getCountyPopulation(this.selected);
 			this.getPilotAreas();
 			this.getFacilityReferrals();
+			this.getUtilizationSectorData();
 		},
 		methods: {
+			getUtilizationSectorData(){
+				axios.get('/api/data/utilization/sector/opd-ipd')
+				.then((res) => {
+					this.data.ipdSectorUtilization = res.data[0]
+					this.data.opdSectorUtilization = res.data[1]
+				});
+			},
 			getPilotAreas: function(){
 				axios.get('/api/counties/pilot')
 				.then((res) => {
@@ -568,6 +580,110 @@
 			},
 			top10referrals: function(){
 				return this.data.referralData.slice(0, 10);
+			},
+			ipdSectorUtilizationGraphs: function(){
+				var charts = {}
+				var colors = _.map(this.colors, (color) => {
+					return color
+				})
+
+				_.forOwn(this.areas, (area) => {
+					charts[area] = {};
+					var data = [];
+
+					_.forOwn(this.sectors, (sector, k) => {
+						var selected = _.find(this.data.ipdSectorUtilization, ['facility_owner', sector]);
+						if(selected !== undefined){
+							data.push({ name: sector, y: parseInt(selected.number), color: colors[k] })
+						}
+					})
+
+					console.log(data)
+
+					charts[area] = {
+						chart: {
+					        plotBackgroundColor: null,
+					        plotBorderWidth: null,
+					        plotShadow: false,
+					        type: 'pie'
+					    },
+					    title: {
+					        text: area + ' Area'
+					    },
+					    tooltip: {
+					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+					    },
+					    plotOptions: {
+					        pie: {
+					            allowPointSelect: true,
+					            cursor: 'pointer',
+					            dataLabels: {
+					                enabled: false
+					            },
+					            showInLegend: true
+					        }
+					    },
+					    series: [{
+					        name: area + ' Area',
+					        colorByPoint: true,
+					        data: data
+					    }]
+					}
+				})
+
+				return charts
+			},
+			opdSectorUtilizationGraphs: function(){
+				var charts = {}
+				var colors = _.map(this.colors, (color) => {
+					return color
+				})
+
+				_.forOwn(this.areas, (area) => {
+					charts[area] = {};
+					var data = [];
+
+					_.forOwn(this.sectors, (sector, k) => {
+						var selected = _.find(this.data.opdSectorUtilization, ['facility_owner', sector]);
+						if(selected !== undefined){
+							data.push({ name: sector, y: parseInt(selected.number), color: colors[k] })
+						}
+					})
+
+					console.log(data)
+
+					charts[area] = {
+						chart: {
+					        plotBackgroundColor: null,
+					        plotBorderWidth: null,
+					        plotShadow: false,
+					        type: 'pie'
+					    },
+					    title: {
+					        text: area + ' Area'
+					    },
+					    tooltip: {
+					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+					    },
+					    plotOptions: {
+					        pie: {
+					            allowPointSelect: true,
+					            cursor: 'pointer',
+					            dataLabels: {
+					                enabled: false
+					            },
+					            showInLegend: true
+					        }
+					    },
+					    series: [{
+					        name: area + ' Area',
+					        colorByPoint: true,
+					        data: data
+					    }]
+					}
+				})
+
+				return charts
 			},
 			opdIpd: function(){
 				return {
