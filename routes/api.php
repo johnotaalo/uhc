@@ -37,4 +37,6 @@ Route::prefix('data')->group(function(){
 
 	Route::post('name/type/add', 'Api\DataController@addDataWithType');
 	Route::get('counties/population', 'Api\DataController@getCountyPopulation');
+
+	Route::get('referrals', 'Api\DataController@getFacilityReferralData');
 });

@@ -156,17 +156,17 @@
 						<ul class="list-group list-group-flush">
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area</small>
-								<small><strong class="text-success text-bold">30</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ totalReferrals }}</strong> per 1000 visits</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in non-pilot area</small>
-								<small><strong class="text-danger text-bold">700</strong> per 1000 visits</small>
+								<small><strong class="text-danger text-bold">0</strong> per 1000 visits</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area 2018</small>
-								<small><strong class="text-success text-bold">100</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ totalReferrals }}</strong> per 1000 visits</small>
 							</li>
 						</ul>
 					</div>
@@ -183,11 +183,11 @@
 								</tr>
 							</thead>
 							<tbody class="list">
-								<tr v-for = "facility in data.referralFacilities">
-									<td>{{ facility.name }}</td>
+								<tr v-for = "facility in top10referrals">
+									<td>{{ facility.facility_name }}</td>
 									<td>{{ facility.county }}</td>
-									<td>{{ facility.level }}</td>
-									<td>{{ facility.rate }} %</td>
+									<td>{{ facility.facility_level }}</td>
+									<td>{{ facility.referrals }}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -268,6 +268,7 @@
 					opdIpdData: [],
 					opdFacilityLevelData: [],
 					ipdFacilityLevelData: [],
+					referralData: [],
 					opdUtilization: [],
 					ipdUtilization: [],
 					referralFacilities: [
@@ -500,6 +501,7 @@
 		created(){
 			this.getCountyPopulation(this.selected);
 			this.getPilotAreas();
+			this.getFacilityReferrals();
 		},
 		methods: {
 			getPilotAreas: function(){
@@ -542,6 +544,14 @@
 				.then((res) => {
 					this.data.population = res.data
 				})
+			},
+
+			getFacilityReferrals(){
+				axios.get('/api/data/referrals')
+				.then((res) => {
+					var _data = _.orderBy(res.data, ['referrals'], ['desc'])
+					this.data.referralData = _data
+				});
 			}
 		},
 		watch: {
@@ -553,6 +563,12 @@
 			}
 		},
 		computed: {
+			totalReferrals: function(){
+				return _.sumBy(this.data.referralData, 'referrals')
+			},
+			top10referrals: function(){
+				return this.data.referralData.slice(0, 10);
+			},
 			opdIpd: function(){
 				return {
 					chart: {

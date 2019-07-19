@@ -240,4 +240,28 @@ class DataController extends Controller
             return \App\CountyPopulation::where('county_id', $county)->first()->population;
         }
     }
+
+    public function getFacilityReferralData(){
+        $sql = "SELECT
+                f.mfl_code,
+                f.facility_name,
+                f.facility_level,
+                c.county,
+                CAST(SUM( number ) AS UNSIGNED) AS referrals 
+            FROM
+                org_data d
+                JOIN organizations o ON o.id = d.organization_id
+                JOIN facilities f ON f.mfl_code = o.organization_code
+                JOIN uploads u ON u.id = d.upload_id
+                JOIN counties c ON c.id = u.county_id
+            WHERE
+                d.data_id IN ( SELECT data_id FROM data_with_types WHERE type = 3 ) 
+                AND u.county_id IN (SELECT id FROM counties WHERE is_pilot IS TRUE)
+            GROUP BY
+                f.mfl_code, f.facility_name, f.facility_level, c.county";
+
+        $data = \DB::select($sql);
+
+        return $data;
+    }
 }

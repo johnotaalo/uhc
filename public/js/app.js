@@ -6376,6 +6376,7 @@ __webpack_require__.r(__webpack_exports__);
         opdIpdData: [],
         opdFacilityLevelData: [],
         ipdFacilityLevelData: [],
+        referralData: [],
         opdUtilization: [],
         ipdUtilization: [],
         referralFacilities: [{
@@ -6597,6 +6598,7 @@ __webpack_require__.r(__webpack_exports__);
   created: function created() {
     this.getCountyPopulation(this.selected);
     this.getPilotAreas();
+    this.getFacilityReferrals();
   },
   methods: {
     getPilotAreas: function getPilotAreas() {
@@ -6652,6 +6654,15 @@ __webpack_require__.r(__webpack_exports__);
       axios.get("/api/data/counties/population?q=".concat(val)).then(function (res) {
         _this5.data.population = res.data;
       });
+    },
+    getFacilityReferrals: function getFacilityReferrals() {
+      var _this6 = this;
+
+      axios.get('/api/data/referrals').then(function (res) {
+        var _data = _.orderBy(res.data, ['referrals'], ['desc']);
+
+        _this6.data.referralData = _data;
+      });
     }
   },
   watch: {
@@ -6663,6 +6674,12 @@ __webpack_require__.r(__webpack_exports__);
     }
   },
   computed: {
+    totalReferrals: function totalReferrals() {
+      return _.sumBy(this.data.referralData, 'referrals');
+    },
+    top10referrals: function top10referrals() {
+      return this.data.referralData.slice(0, 10);
+    },
     opdIpd: function opdIpd() {
       return {
         chart: {
@@ -77756,7 +77773,47 @@ var render = function() {
         _c("div", { staticClass: "card" }, [
           _vm._m(7),
           _vm._v(" "),
-          _vm._m(8),
+          _c("div", { staticClass: "card-body" }, [
+            _c("ul", { staticClass: "list-group list-group-flush" }, [
+              _c(
+                "li",
+                {
+                  staticClass:
+                    "list-group-item d-flex align-items-center justify-content-between px-0"
+                },
+                [
+                  _c("small", [_vm._v("Rate of referrals in pilot area")]),
+                  _vm._v(" "),
+                  _c("small", [
+                    _c("strong", { staticClass: "text-success text-bold" }, [
+                      _vm._v(_vm._s(_vm.totalReferrals))
+                    ]),
+                    _vm._v(" per 1000 visits")
+                  ])
+                ]
+              ),
+              _vm._v(" "),
+              _vm._m(8),
+              _vm._v(" "),
+              _c(
+                "li",
+                {
+                  staticClass:
+                    "list-group-item d-flex align-items-center justify-content-between px-0"
+                },
+                [
+                  _c("small", [_vm._v("Rate of referrals in pilot area 2018")]),
+                  _vm._v(" "),
+                  _c("small", [
+                    _c("strong", { staticClass: "text-success text-bold" }, [
+                      _vm._v(_vm._s(_vm.totalReferrals))
+                    ]),
+                    _vm._v(" per 1000 visits")
+                  ])
+                ]
+              )
+            ])
+          ]),
           _vm._v(" "),
           _c(
             "h3",
@@ -77776,15 +77833,15 @@ var render = function() {
                 _c(
                   "tbody",
                   { staticClass: "list" },
-                  _vm._l(_vm.data.referralFacilities, function(facility) {
+                  _vm._l(_vm.top10referrals, function(facility) {
                     return _c("tr", [
-                      _c("td", [_vm._v(_vm._s(facility.name))]),
+                      _c("td", [_vm._v(_vm._s(facility.facility_name))]),
                       _vm._v(" "),
                       _c("td", [_vm._v(_vm._s(facility.county))]),
                       _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.level))]),
+                      _c("td", [_vm._v(_vm._s(facility.facility_level))]),
                       _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.rate) + " %")])
+                      _c("td", [_vm._v(_vm._s(facility.referrals))])
                     ])
                   }),
                   0
@@ -77955,63 +78012,21 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-body" }, [
-      _c("ul", { staticClass: "list-group list-group-flush" }, [
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Rate of referrals in pilot area")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-success text-bold" }, [
-                _vm._v("30")
-              ]),
-              _vm._v(" per 1000 visits")
-            ])
-          ]
-        ),
+    return _c(
+      "li",
+      {
+        staticClass:
+          "list-group-item d-flex align-items-center justify-content-between px-0"
+      },
+      [
+        _c("small", [_vm._v("Rate of referrals in non-pilot area")]),
         _vm._v(" "),
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Rate of referrals in non-pilot area")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-danger text-bold" }, [
-                _vm._v("700")
-              ]),
-              _vm._v(" per 1000 visits")
-            ])
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Rate of referrals in pilot area 2018")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-success text-bold" }, [
-                _vm._v("100")
-              ]),
-              _vm._v(" per 1000 visits")
-            ])
-          ]
-        )
-      ])
-    ])
+        _c("small", [
+          _c("strong", { staticClass: "text-danger text-bold" }, [_vm._v("0")]),
+          _vm._v(" per 1000 visits")
+        ])
+      ]
+    )
   },
   function() {
     var _vm = this
