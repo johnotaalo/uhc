@@ -20,7 +20,7 @@
 						Enrolled Population
 					</h6>
 					<h1 class="header-title">
-						1,500,000
+						0
 					</h1>
 				</div>
 
@@ -29,7 +29,7 @@
 						% of target population enrolled
 					</h6>
 					<h1 class="header-title">
-						33%
+						0%
 					</h1>
 				</div>
 			</div> <!-- / .row -->
@@ -156,7 +156,7 @@
 						<ul class="list-group list-group-flush">
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area</small>
-								<small><strong class="text-success text-bold">{{ totalReferrals }}</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ totalReferrals | numFormat }}</strong> per 1000 visits</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">

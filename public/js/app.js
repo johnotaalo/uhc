@@ -77786,7 +77786,7 @@ var render = function() {
                   _vm._v(" "),
                   _c("small", [
                     _c("strong", { staticClass: "text-success text-bold" }, [
-                      _vm._v(_vm._s(_vm.totalReferrals))
+                      _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
                     ]),
                     _vm._v(" per 1000 visits")
                   ])
@@ -77906,7 +77906,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t1,500,000\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0\n\t\t\t\t")
       ])
     ])
   },
@@ -77920,7 +77920,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t33%\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0%\n\t\t\t\t")
       ])
     ])
   },
