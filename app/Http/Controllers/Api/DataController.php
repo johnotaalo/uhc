@@ -58,7 +58,7 @@ class DataController extends Controller
         $data = $spreadsheet->getActiveSheet()->toArray();
         $header = array_shift($data);
         $dates = array_slice($header, 8, count($header), true);
-
+// dd($dates);
         $organizations = [];
         $data_fields = [];
         $org_data = [];
@@ -98,7 +98,7 @@ class DataController extends Controller
                             'upload_id'                 =>  $upload->id,
                             'organization_id'           =>  $org->id,
                             'data_id'                   =>  $df->id,
-                            'date'                      =>  date('Y-m-d', strtotime($date)),
+                            'date'                      =>  date('Y-m-d', strtotime("01-" . $date)),
                             'number'                    =>  $d[$key]
                         ];
 

@@ -4887,11 +4887,11 @@ __webpack_require__.r(__webpack_exports__);
             colorByPoint: true,
             data: [{
               name: 'Male',
-              y: 61.41,
+              y: 35,
               color: colors.blue
             }, {
               name: 'Female',
-              y: 11.84,
+              y: 65,
               color: colors.orange
             }]
           }]
@@ -4924,11 +4924,11 @@ __webpack_require__.r(__webpack_exports__);
             colorByPoint: true,
             data: [{
               name: 'Male',
-              y: 1000,
+              y: 35,
               color: colors.blue
             }, {
               name: 'Female',
-              y: 200,
+              y: 65,
               color: colors.orange
             }]
           }]
@@ -76678,9 +76678,7 @@ var staticRenderFns = [
         _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
       ]),
       _vm._v(" "),
-      _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t4,500,000\n\t\t\t\t")
-      ])
+      _c("h1", { staticClass: "header-title" })
     ])
   },
   function() {
@@ -76693,7 +76691,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t1,500,000\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0\n\t\t\t\t")
       ])
     ])
   },
@@ -76707,7 +76705,7 @@ var staticRenderFns = [
       ]),
       _vm._v(" "),
       _c("h1", { staticClass: "header-title" }, [
-        _vm._v("\n\t\t\t\t\t33%\n\t\t\t\t")
+        _vm._v("\n\t\t\t\t\t0%\n\t\t\t\t")
       ])
     ])
   },

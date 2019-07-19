@@ -11,7 +11,7 @@
 						Total Population
 					</h6>
 					<h1 class="header-title">
-						4,500,000
+						
 					</h1>
 				</div>
 
@@ -20,7 +20,7 @@
 						Enrolled Population
 					</h6>
 					<h1 class="header-title">
-						1,500,000
+						0
 					</h1>
 				</div>
 
@@ -29,7 +29,7 @@
 						% of target population enrolled
 					</h6>
 					<h1 class="header-title">
-						33%
+						0%
 					</h1>
 				</div>
 			</div> <!-- / .row -->
@@ -238,11 +238,11 @@
 					        colorByPoint: true,
 					        data: [{
 					            name: 'Male',
-					            y: 61.41,
+					            y: 35,
 					            color: colors.blue
 					        }, {
 					            name: 'Female',
-					            y: 11.84,
+					            y: 65,
 					            color: colors.orange
 					        }]
 					    }]
@@ -275,11 +275,11 @@
 					        colorByPoint: true,
 					        data: [{
 					            name: 'Male',
-					            y: 1000,
+					            y: 35,
 					            color: colors.blue
 					        }, {
 					            name: 'Female',
-					            y: 200,
+					            y: 65,
 					            color: colors.orange
 					        }]
 					    }]
