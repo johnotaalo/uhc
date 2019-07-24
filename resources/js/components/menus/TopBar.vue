@@ -25,7 +25,7 @@
 					<ul class="navbar-nav mr-auto" v-if="type != 'test'">
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'enrollment' }">Enrollment</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'utilization' }">Utilization</router-link></li>
-						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'serviceDelivery' }">Survey Delivery</router-link></li>
+						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'serviceDelivery' }">Service Delivery</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'financialHealth' }">Financial Health</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'uploadData' }">Upload Data</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'settings' }">Settings</router-link></li>
@@ -33,7 +33,7 @@
 					<ul class="navbar-nav mr-auto" v-else>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.enrollment' }">Enrollment</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.utilization' }">Utilization</router-link></li>
-						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.serviceDelivery' }">Survey Delivery</router-link></li>
+						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.serviceDelivery' }">Service Delivery</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.financialHealth' }">Financial Health</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.uploadData' }">Upload Data</router-link></li>
 						<li class="nav-item"><router-link class="nav-link" :to="{ name: 'test.settings' }">Settings</router-link></li>

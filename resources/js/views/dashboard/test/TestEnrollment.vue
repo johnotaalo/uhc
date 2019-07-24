@@ -110,7 +110,7 @@
 					{ value: 'national', text: 'Machakos' },
 					{ value: 'national', text: 'Nyeri' },
 				],
-				selected: "",
+				selected: "national",
 				ageDistribution: {
 					chart: {
 				        type: 'column'
@@ -153,7 +153,7 @@
 				    },
 				    series: [{
 				        name: 'Enrolled Population',
-				        data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6],
+				        data: [],
 				        color: colors.blue
 
 				    }, {
@@ -199,7 +199,7 @@
 				    },
 				    series: [{
 				        name: 'Enrolled Population',
-				        data: [48.9, 38.8],
+				        data: [],
 				        color: colors.blue
 
 				    }, {
@@ -238,11 +238,11 @@
 					        colorByPoint: true,
 					        data: [{
 					            name: 'Male',
-					            y: 35,
+					            y: 0,
 					            color: colors.blue
 					        }, {
 					            name: 'Female',
-					            y: 65,
+					            y: 0,
 					            color: colors.orange
 					        }]
 					    }]

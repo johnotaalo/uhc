@@ -4777,7 +4777,7 @@ __webpack_require__.r(__webpack_exports__);
         value: 'national',
         text: 'Nyeri'
       }],
-      selected: "",
+      selected: "national",
       ageDistribution: {
         chart: {
           type: 'column'
@@ -4810,7 +4810,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Enrolled Population',
-          data: [48.9, 38.8, 39.3, 41.4, 47.0, 48.3, 59.0, 59.6],
+          data: [],
           color: colors.blue
         }, {
           name: 'Total Population',
@@ -4850,7 +4850,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Enrolled Population',
-          data: [48.9, 38.8],
+          data: [],
           color: colors.blue
         }, {
           name: 'Total Population',
@@ -4887,11 +4887,11 @@ __webpack_require__.r(__webpack_exports__);
             colorByPoint: true,
             data: [{
               name: 'Male',
-              y: 35,
+              y: 0,
               color: colors.blue
             }, {
               name: 'Female',
-              y: 65,
+              y: 0,
               color: colors.orange
             }]
           }]
@@ -74443,7 +74443,7 @@ var render = function() {
                             staticClass: "nav-link",
                             attrs: { to: { name: "serviceDelivery" } }
                           },
-                          [_vm._v("Survey Delivery")]
+                          [_vm._v("Service Delivery")]
                         )
                       ],
                       1
@@ -74540,7 +74540,7 @@ var render = function() {
                             staticClass: "nav-link",
                             attrs: { to: { name: "test.serviceDelivery" } }
                           },
-                          [_vm._v("Survey Delivery")]
+                          [_vm._v("Service Delivery")]
                         )
                       ],
                       1
