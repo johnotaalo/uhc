@@ -291,4 +291,20 @@ class DataController extends Controller
 
         return $cleanedData;
     }
+
+    function getGeographicalDataOfCounty(Request $request){
+        $query = \App\CountyPopulation::where('year', 2018);
+        if ($request->county == "national") {
+            $query->select(\DB::raw('avg(`urban`) AS urban, avg(`rural`) AS rural'));
+        }else{
+            $query->select('urban', 'rural');
+            $query->where('county_id', $request->county);
+        }
+
+        return $query->first();
+    }
+
+    function getPyramid(){
+        return \App\Pyramid::get();
+    }
 }

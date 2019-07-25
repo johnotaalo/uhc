@@ -4761,64 +4761,79 @@ __webpack_require__.r(__webpack_exports__);
       orange: "#ed7d31"
     };
     return {
+      colors: colors,
       options: [{
         value: 'national',
         text: 'National'
-      }, {
-        value: 'isiolo',
-        text: 'Isiolo'
-      }, {
-        value: 'national',
-        text: 'Kisumu'
-      }, {
-        value: 'national',
-        text: 'Machakos'
-      }, {
-        value: 'national',
-        text: 'Nyeri'
       }],
       selected: "national",
-      ageDistribution: {
-        chart: {
-          type: 'column'
-        },
-        title: {
-          text: 'Age Distribution of Enrolled Population'
-        },
-        xAxis: {
-          categories: ['< 15', '15 - 24', '25 - 34', '35 - 44', '45 - 54', '55 - 64', '65 - 79', '> 80'],
-          crosshair: true
-        },
-        yAxis: {
-          min: 0,
-          title: {
-            text: 'Percentage'
-          }
-        },
-        tooltip: {
-          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-          footerFormat: '</table>',
-          shared: true,
-          useHTML: true
-        },
-        plotOptions: {
-          column: {
-            pointPadding: 0.2,
-            borderWidth: 0
-          }
-        },
-        series: [{
-          name: 'Enrolled Population',
-          data: [],
-          color: colors.blue
-        }, {
-          name: 'Total Population',
-          data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4],
-          color: colors.orange
-        }]
-      },
-      geographicalDistribution: {
+      data: {
+        geographicalDistribution: {},
+        population: {},
+        pyramid: {}
+      }
+    };
+  },
+  mounted: function mounted() {
+    this.getPilotAreas();
+    this.getGeographicalDistribution(this.selected);
+    this.getCountyPopulation(this.selected);
+    this.getPopulationPyramid();
+  },
+  methods: {
+    getPilotAreas: function getPilotAreas() {
+      var _this = this;
+
+      axios.get('/api/counties/pilot').then(function (res) {
+        var options = _.map(res.data, function (o) {
+          return {
+            value: o.id,
+            text: o.county
+          };
+        });
+
+        var merge = _this.options.concat(options);
+
+        _this.options = merge;
+      });
+    },
+    getGeographicalDistribution: function getGeographicalDistribution(county) {
+      var _this2 = this;
+
+      axios.get("/api/data/geographical/county/".concat(county)).then(function (res) {
+        _this2.data.geographicalDistribution = res.data;
+      });
+    },
+    getCountyPopulation: function getCountyPopulation(val) {
+      var _this3 = this;
+
+      if (val == "") {
+        val = 'national';
+      }
+
+      axios.get("/api/data/counties/population?q=".concat(val)).then(function (res) {
+        _this3.data.population = res.data;
+      });
+    },
+    getPopulationPyramid: function getPopulationPyramid() {
+      var _this4 = this;
+
+      axios.get('/api/data/pyramid').then(function (res) {
+        _this4.data.pyramid = res.data;
+      });
+    }
+  },
+  watch: {
+    selected: function selected(val) {
+      this.getGeographicalDistribution(val);
+      this.getCountyPopulation(val);
+    }
+  },
+  computed: {
+    geographicalDistribution: function geographicalDistribution() {
+      var totalUrban = parseInt(this.data.geographicalDistribution.urban);
+      var totalRural = parseInt(this.data.geographicalDistribution.rural);
+      return {
         chart: {
           type: 'column'
         },
@@ -4850,15 +4865,67 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Enrolled Population',
-          data: [],
-          color: colors.blue
+          data: [0, 0],
+          color: this.colors.blue
         }, {
           name: 'Total Population',
-          data: [42.4, 33.2],
-          color: colors.orange
+          data: [totalUrban, totalRural],
+          color: this.colors.orange
         }]
-      },
-      genderDistribution: {
+      };
+    },
+    ageDistribution: function ageDistribution() {
+      var categories = _.map(this.data.pyramid, function (p) {
+        return p.age_group;
+      });
+
+      var totalPopulations = _.map(this.data.pyramid, function (p) {
+        return p.male + p.female;
+      });
+
+      return {
+        chart: {
+          type: 'column'
+        },
+        title: {
+          text: 'Age Distribution of Enrolled Population'
+        },
+        xAxis: {
+          categories: categories,
+          crosshair: true
+        },
+        yAxis: {
+          min: 0,
+          title: {
+            text: 'Percentage'
+          }
+        },
+        tooltip: {
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+          footerFormat: '</table>',
+          shared: true,
+          useHTML: true
+        },
+        plotOptions: {
+          column: {
+            pointPadding: 0.2,
+            borderWidth: 0
+          }
+        },
+        series: [{
+          name: 'Enrolled Population',
+          data: [],
+          color: this.colors.blue
+        }, {
+          name: 'Total Population',
+          data: totalPopulations,
+          color: this.colors.orange
+        }]
+      };
+    },
+    genderDistribution: function genderDistribution() {
+      return {
         enrolled: {
           chart: {
             plotBackgroundColor: null,
@@ -4888,11 +4955,11 @@ __webpack_require__.r(__webpack_exports__);
             data: [{
               name: 'Male',
               y: 0,
-              color: colors.blue
+              color: this.colors.blue
             }, {
               name: 'Female',
               y: 0,
-              color: colors.orange
+              color: this.colors.orange
             }]
           }]
         },
@@ -4925,16 +4992,16 @@ __webpack_require__.r(__webpack_exports__);
             data: [{
               name: 'Male',
               y: 35,
-              color: colors.blue
+              color: this.colors.blue
             }, {
               name: 'Female',
               y: 65,
-              color: colors.orange
+              color: this.colors.orange
             }]
           }]
         }
-      }
-    };
+      };
+    }
   }
 });
 
@@ -76595,18 +76662,30 @@ var render = function() {
           1
         ),
         _vm._v(" "),
+        _c("div", { staticClass: "col" }, [
+          _c("h6", { staticClass: "header-pretitle" }, [
+            _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
+          ]),
+          _vm._v(" "),
+          _c("h1", { staticClass: "header-title" }, [
+            _vm._v(
+              "\n\t\t\t\t\t" +
+                _vm._s(_vm._f("numFormat")(_vm.data.population)) +
+                "\n\t\t\t\t"
+            )
+          ])
+        ]),
+        _vm._v(" "),
         _vm._m(0),
         _vm._v(" "),
-        _vm._m(1),
-        _vm._v(" "),
-        _vm._m(2)
+        _vm._m(1)
       ])
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "row" }, [
       _c("div", { staticClass: "col-12" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(3),
+          _vm._m(2),
           _vm._v(" "),
           _c(
             "div",
@@ -76619,7 +76698,7 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col-5" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(4),
+          _vm._m(3),
           _vm._v(" "),
           _c(
             "div",
@@ -76636,7 +76715,7 @@ var render = function() {
       _vm._v(" "),
       _c("div", { staticClass: "col-7" }, [
         _c("div", { staticClass: "card" }, [
-          _vm._m(5),
+          _vm._m(4),
           _vm._v(" "),
           _c("div", { staticClass: "card-body" }, [
             _c("div", { staticClass: "row" }, [
@@ -76669,18 +76748,6 @@ var render = function() {
   ])
 }
 var staticRenderFns = [
-  function() {
-    var _vm = this
-    var _h = _vm.$createElement
-    var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "col" }, [
-      _c("h6", { staticClass: "header-pretitle" }, [
-        _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
-      ]),
-      _vm._v(" "),
-      _c("h1", { staticClass: "header-title" })
-    ])
-  },
   function() {
     var _vm = this
     var _h = _vm.$createElement

@@ -11,7 +11,7 @@
 						Total Population
 					</h6>
 					<h1 class="header-title">
-						
+						{{ data.population | numFormat }}
 					</h1>
 				</div>
 
@@ -103,67 +103,70 @@
 				orange: "#ed7d31"
 			};
 			return {
+				colors: colors,
 				options: [
-					{ value: 'national', text: 'National' },
-					{ value: 'isiolo', text: 'Isiolo' },
-					{ value: 'national', text: 'Kisumu' },
-					{ value: 'national', text: 'Machakos' },
-					{ value: 'national', text: 'Nyeri' },
+					{ value: 'national', text: 'National' }
 				],
 				selected: "national",
-				ageDistribution: {
-					chart: {
-				        type: 'column'
-				    },
-				    title: {
-				        text: 'Age Distribution of Enrolled Population'
-				    },
-				    xAxis: {
-				        categories: [
-				            '< 15',
-				            '15 - 24',
-				            '25 - 34',
-				            '35 - 44',
-				            '45 - 54',
-				            '55 - 64',
-				            '65 - 79',
-				            '> 80'
-				        ],
-				        crosshair: true
-				    },
-				    yAxis: {
-				        min: 0,
-				        title: {
-				            text: 'Percentage'
-				        }
-				    },
-				    tooltip: {
-				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
-				        footerFormat: '</table>',
-				        shared: true,
-				        useHTML: true
-				    },
-				    plotOptions: {
-				        column: {
-				            pointPadding: 0.2,
-				            borderWidth: 0
-				        }
-				    },
-				    series: [{
-				        name: 'Enrolled Population',
-				        data: [],
-				        color: colors.blue
+				data: {
+					geographicalDistribution: {},
+					population: {},
+					pyramid: {}
+				}
+			}
+		},
+		mounted() {
+			this.getPilotAreas();
+			this.getGeographicalDistribution(this.selected);
+			this.getCountyPopulation(this.selected)
+			this.getPopulationPyramid()
+		},
+		methods: {
+			getPilotAreas: function(){
+				axios.get('/api/counties/pilot')
+				.then((res) => {
+					var options = _.map(res.data, (o) => {
+						return { value: o.id, text: o.county }
+					})
 
-				    }, {
-				        name: 'Total Population',
-				        data: [42.4, 33.2, 34.5, 39.7, 52.6, 75.5, 57.4, 60.4],
-				        color: colors.orange
+					var merge =this.options.concat(options)
+					this.options = merge
+				});
+			},
+			getGeographicalDistribution(county){
+				axios.get(`/api/data/geographical/county/${county}`)
+				.then((res) => {
+					this.data.geographicalDistribution = res.data
+				});
+			},
+			getCountyPopulation(val){
+				if(val == ""){
+					val = 'national'
+				}
+				axios.get(`/api/data/counties/population?q=${val}`)
+				.then((res) => {
+					this.data.population = res.data
+				})
+			},
+			getPopulationPyramid(){
+				axios.get('/api/data/pyramid')
+				.then((res) => {
+					this.data.pyramid = res.data
+				});
+			}
+		},
+		watch: {
+			selected: function(val){
+				this.getGeographicalDistribution(val);
+				this.getCountyPopulation(val)
+			}
+		},
+		computed: {
+			geographicalDistribution: function(){
+				var totalUrban = parseInt(this.data.geographicalDistribution.urban);
+				var totalRural = parseInt(this.data.geographicalDistribution.rural);
 
-				    }]
-				},
-				geographicalDistribution: {
+				return {
 					chart: {
 				        type: 'column'
 				    },
@@ -199,17 +202,72 @@
 				    },
 				    series: [{
 				        name: 'Enrolled Population',
-				        data: [],
-				        color: colors.blue
+				        data: [0, 0],
+				        color: this.colors.blue
 
 				    }, {
 				        name: 'Total Population',
-				        data: [42.4, 33.2],
-				        color: colors.orange
+				        data: [totalUrban, totalRural],
+				        color: this.colors.orange
 
 				    }]
-				},
-				genderDistribution: {
+				}
+			},
+			ageDistribution: function() {
+				var categories = _.map(this.data.pyramid, (p) => {
+					return p.age_group
+				})
+
+				var totalPopulations = _.map(this.data.pyramid, (p) => {
+					return p.male + p.female
+				})
+
+				return {
+					chart: {
+			        	type: 'column'
+			    	},
+				    title: {
+				        text: 'Age Distribution of Enrolled Population'
+				    },
+				    xAxis: {
+				        categories: categories,
+				        crosshair: true
+				    },
+				    yAxis: {
+				        min: 0,
+				        title: {
+				            text: 'Percentage'
+				        }
+				    },
+				    tooltip: {
+				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+				            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+				        footerFormat: '</table>',
+				        shared: true,
+				        useHTML: true
+				    },
+				    plotOptions: {
+				        column: {
+				            pointPadding: 0.2,
+				            borderWidth: 0
+				        }
+				    },
+				    series: [{
+				        name: 'Enrolled Population',
+				        data: [],
+				        color: this.colors.blue
+
+				    }, {
+				        name: 'Total Population',
+				        data: totalPopulations,
+				        color: this.colors.orange
+
+				    }]
+				}
+			},
+			genderDistribution: function(){
+				return { 
 					enrolled: {
 						chart: {
 					        plotBackgroundColor: null,
@@ -239,11 +297,11 @@
 					        data: [{
 					            name: 'Male',
 					            y: 0,
-					            color: colors.blue
+					            color: this.colors.blue
 					        }, {
 					            name: 'Female',
 					            y: 0,
-					            color: colors.orange
+					            color: this.colors.orange
 					        }]
 					    }]
 					},
@@ -276,11 +334,11 @@
 					        data: [{
 					            name: 'Male',
 					            y: 35,
-					            color: colors.blue
+					            color: this.colors.blue
 					        }, {
 					            name: 'Female',
 					            y: 65,
-					            color: colors.orange
+					            color: this.colors.orange
 					        }]
 					    }]
 					}

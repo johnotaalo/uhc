@@ -40,4 +40,7 @@ Route::prefix('data')->group(function(){
 
 	Route::get('referrals', 'Api\DataController@getFacilityReferralData');
 	Route::get('utilization/sector/opd-ipd', 'Api\DataController@getOPDIPDBySector');
+
+	Route::get('geographical/county/{county}', 'Api\DataController@getGeographicalDataOfCounty');
+	Route::get('pyramid', 'Api\DataController@getPyramid');
 });
