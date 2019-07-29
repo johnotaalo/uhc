@@ -38,8 +38,9 @@ Route::prefix('data')->group(function(){
 	Route::post('name/type/add', 'Api\DataController@addDataWithType');
 	Route::get('counties/population', 'Api\DataController@getCountyPopulation');
 
-	Route::get('referrals', 'Api\DataController@getFacilityReferralData');
-	Route::get('utilization/sector/opd-ipd', 'Api\DataController@getOPDIPDBySector');
+	Route::get('referrals/{county_id}', 'Api\DataController@getFacilityReferralData');
+	Route::get('los/{county_id}', 'Api\DataController@getLengthOfStay');
+	Route::get('utilization/sector/opd-ipd/{county_id}', 'Api\DataController@getOPDIPDBySector');
 
 	Route::get('geographical/county/{county}', 'Api\DataController@getGeographicalDataOfCounty');
 	Route::get('pyramid', 'Api\DataController@getPyramid');

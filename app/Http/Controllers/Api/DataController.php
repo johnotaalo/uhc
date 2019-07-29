@@ -147,28 +147,33 @@ class DataController extends Controller
             return $field->data_id;
         });
 
-
+        $ipdQuery = OrgData::whereIn('data_id', $ipdFieldsArray);
+        $opdQuery = OrgData::whereIn('data_id', $opdFieldsArray);
 
         if ($county_id != "") {
-            $ipdQuery = OrgData::whereIn('data_id', $ipdFieldsArray);
             $ipdQuery->whereHas('upload', function($query) use ($county_id){
                 $query->where('county_id', $county_id);
             });
 
-            $opdQuery = OrgData::whereIn('data_id', $opdFieldsArray);
+            
             $opdQuery->whereHas('upload', function($query) use ($county_id){
                 $query->where('county_id', $county_id);
             });
+        }else{
+            $counties = County::where('is_pilot', 1)->pluck('id')->toArray();
 
+            $ipdQuery->whereHas('upload', function($query) use ($counties){
+                $query->whereIn('county_id', $counties);
+            });
 
-            $data['ipd'] = (int) $ipdQuery->sum('number');
-            $data['opd'] = (int) $opdQuery->sum('number');
-
-            // dd($opdQuery->getQuery());
-
-            // \DB::connection()->enableQueryLog();
-            // dd(\DB::getQueryLog());
+            
+            $opdQuery->whereHas('upload', function($query) use ($counties){
+                $query->whereIn('county_id', $counties);
+            });
         }
+
+        $data['ipd'] = (int) $ipdQuery->sum('number');
+        $data['opd'] = (int) $opdQuery->sum('number');
 
         return $data;
     }
@@ -182,11 +187,12 @@ class DataController extends Controller
             $dataType = \App\Enums\DataType::InPatient;
         }
 
+        $extra_statement = ($county_id == 0) ? "" : " AND u.county_id = {$county_id}";
         $fields = DataWithType::where('type', $dataType)->pluck('id')->toArray();
         $fieldsString = implode(',', $fields);
         $data = [];
 
-        if ($county_id != "") {
+        // if ($county_id != "") {
             $sql = "SELECT
                         facility_level,
                         SUM( NO ) AS totals
@@ -206,14 +212,17 @@ class DataController extends Controller
                             t.type = {$dataType} 
                             AND t.id IN ( {$fieldsString} ) 
                             AND od.number IS NOT NULL 
-                            AND u.county_id = {$county_id} 
+                            AND u.county_id IN (SELECT id FROM counties WHERE is_pilot = 1)
+                            {$extra_statement}
                         GROUP BY
                             f.facility_level 
                         ) x 
                     GROUP BY
                         facility_level";
+
+                        // exit($sql);
             $data = \DB::select($sql);
-        }
+        // }
 
         return $data;
     }
@@ -241,7 +250,8 @@ class DataController extends Controller
         }
     }
 
-    public function getFacilityReferralData(){
+    public function getFacilityReferralData(Request $request){
+        $extra_statement = ($request->county_id != 0) ? "AND u.county_id = {$request->county_id}" : "AND u.county_id IN (SELECT id FROM counties WHERE is_pilot IS TRUE)";
         $sql = "SELECT
                 f.mfl_code,
                 f.facility_name,
@@ -256,7 +266,7 @@ class DataController extends Controller
                 JOIN counties c ON c.id = u.county_id
             WHERE
                 d.data_id IN ( SELECT data_id FROM data_with_types WHERE type = 3 ) 
-                AND u.county_id IN (SELECT id FROM counties WHERE is_pilot IS TRUE)
+                {$extra_statement}
             GROUP BY
                 f.mfl_code, f.facility_name, f.facility_level, c.county";
 
@@ -265,7 +275,61 @@ class DataController extends Controller
         return $data;
     }
 
-    public function getOPDIPDBySector(){
+    public function getLengthOfStay(Request $request){
+        $extra_statement = ($request->county_id != 0) ? "AND u.county_id = {$request->county_id}" : "AND u.county_id IN (SELECT id FROM counties WHERE is_pilot IS TRUE)";
+
+        $LOS = \App\Enums\DataType::InPatientLengthOfStay;
+        $losFields = DataWithType::where('type', $LOS)->pluck('data_id')->toArray();
+
+        $pilotAverageQuery = OrgData::whereIn('data_id', $losFields);
+        if ($request->county_id != 0) {
+            $county_id = $request->county_id;
+            $pilotAverageQuery->whereHas('upload', function($query) use ($county_id){
+                $query->where('county_id', $county_id);
+            });
+        }else{
+            $counties = County::where('is_pilot', 1)->pluck('id')->toArray();
+
+            $pilotAverageQuery->whereHas('upload', function($query) use ($counties){
+                $query->whereIn('county_id', $counties);
+            });
+        }
+
+        $pilotAverage = $pilotAverageQuery->avg('number');
+
+        $sql = "SELECT * FROM (
+            SELECT
+                f.mfl_code,
+                f.facility_name,
+                f.facility_level,
+                c.county,
+                CAST(AVG( number ) AS UNSIGNED) AS los 
+            FROM
+                org_data d
+                JOIN organizations o ON o.id = d.organization_id
+                JOIN facilities f ON f.mfl_code = o.organization_code
+                JOIN uploads u ON u.id = d.upload_id
+                JOIN counties c ON c.id = u.county_id
+            WHERE
+                d.data_id IN ( SELECT data_id FROM data_with_types WHERE type = 2 ) 
+                {$extra_statement}
+            GROUP BY
+                f.mfl_code, f.facility_name, f.facility_level, c.county
+                                ) x
+                                ORDER BY los DESC
+                                LIMIT 10";
+
+            return [
+                'average'   =>  $pilotAverage,
+                'data'      =>  \DB::select($sql)
+            ];
+    }
+
+    public function getOPDIPDBySector(Request $request){
+        $county_id = ($request->county_id) ? $request->county_id : "";
+        // var_dump($county_id);die;
+        $extra_statement = ($county_id != "") ? "AND c.id = {$county_id}" : "AND c.is_pilot IS TRUE";
+        // dd($extra_statement);
         $sql = "SELECT
                     f.facility_owner,
                     IF(c.is_pilot,'Pilot','Non Pilot') as area,
@@ -277,11 +341,13 @@ class DataController extends Controller
                     JOIN facilities f ON f.mfl_code = o.organization_code
                     JOIN uploads u ON u.id = d.upload_id
                     JOIN counties c ON c.id = u.county_id 
-                    AND c.is_pilot IS TRUE
+                    {$extra_statement}
                     JOIN data_fields df ON df.id = d.data_id
                     JOIN data_with_types t ON t.data_id = df.id AND t.type IN (0, 1)
                 GROUP BY
                     f.facility_owner, IF(c.is_pilot,'Pilot','Non Pilot'), t.type";
+
+                    // die($sql);
 
         $data = \DB::select($sql);
         $cleanedData = [];

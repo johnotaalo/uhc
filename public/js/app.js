@@ -4890,6 +4890,9 @@ __webpack_require__.r(__webpack_exports__);
         title: {
           text: 'Age Distribution of Enrolled Population'
         },
+        subtitle: {
+          text: 'Data from 2009 Census'
+        },
         xAxis: {
           categories: categories,
           crosshair: true
@@ -4902,7 +4905,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
           useHTML: true
@@ -4925,6 +4928,10 @@ __webpack_require__.r(__webpack_exports__);
       };
     },
     genderDistribution: function genderDistribution() {
+      var femalesTotal = _.sumBy(this.data.pyramid, 'female');
+
+      var malesTotal = _.sumBy(this.data.pyramid, 'male');
+
       return {
         enrolled: {
           chart: {
@@ -4973,6 +4980,9 @@ __webpack_require__.r(__webpack_exports__);
           title: {
             text: 'Total Population'
           },
+          subtitle: {
+            text: 'Data from 2009 Census'
+          },
           tooltip: {
             pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
           },
@@ -4991,11 +5001,11 @@ __webpack_require__.r(__webpack_exports__);
             colorByPoint: true,
             data: [{
               name: 'Male',
-              y: 35,
+              y: malesTotal,
               color: this.colors.blue
             }, {
               name: 'Female',
-              y: 65,
+              y: femalesTotal,
               color: this.colors.orange
             }]
           }]
@@ -6425,6 +6435,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     var colors = {
@@ -6432,6 +6443,9 @@ __webpack_require__.r(__webpack_exports__);
       orange: "#ed7d31"
     };
     return {
+      loadingNumber: 0,
+      isLoading: false,
+      fullPage: true,
       options: [{
         value: '',
         text: 'National'
@@ -6446,244 +6460,40 @@ __webpack_require__.r(__webpack_exports__);
         opdFacilityLevelData: [],
         ipdFacilityLevelData: [],
         referralData: [],
+        losData: [],
         opdUtilization: [],
         ipdUtilization: [],
         ipdSectorUtilization: [],
-        opdSectorUtilization: [],
-        referralFacilities: [{
-          name: "CHANDARIA DISPENSARY",
-          county: "Nairobi",
-          level: "Level 2",
-          rate: 100,
-          los: 15
-        }, {
-          name: "SINGIRAINE DISPENSARY",
-          county: "Kajiado",
-          level: "Level 3",
-          rate: 100,
-          los: 14
-        }, {
-          name: "GATUANYAGA DISPENSARY",
-          county: "Kiambu",
-          level: "Level 2",
-          rate: 97,
-          los: 14
-        }, {
-          name: "TAWFIQ HOSPITAL",
-          county: "Kilifi",
-          level: "Level 4",
-          rate: 93,
-          los: 11
-        }, {
-          name: "KILIMANGODO DISPENSARY",
-          county: "Kwale",
-          level: "Level 2",
-          rate: 75,
-          los: 11
-        }, {
-          name: "ESHU DISPENSARY",
-          county: "Kwale",
-          level: "Level 2",
-          rate: 75,
-          los: 9
-        }, {
-          name: "IKULU DISPENSARY",
-          county: "Machakos",
-          level: "Level 2",
-          rate: 73,
-          los: 9
-        }, {
-          name: "KYUASINI HEALTH CENTRE",
-          county: "Makueni",
-          level: "Level 3",
-          rate: 70,
-          los: 9
-        }, {
-          name: "KONGOWEA HEALTH CENTRE",
-          county: "Mombasa",
-          level: "Level 3",
-          rate: 66,
-          los: 8
-        }, {
-          name: "KARURA DISPENSARY",
-          county: "Nakuru",
-          level: "Level 2",
-          rate: 51,
-          los: 8
-        }]
-      },
-      opdUtilization: {
-        nonPilot: {
-          chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-          },
-          title: {
-            text: 'Non-Pilot Area (Average)'
-          },
-          tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          plotOptions: {
-            pie: {
-              allowPointSelect: true,
-              cursor: 'pointer',
-              dataLabels: {
-                enabled: false
-              },
-              showInLegend: true
-            }
-          },
-          series: [{
-            name: 'Non-Pilot Area (Average)',
-            colorByPoint: true,
-            data: [{
-              name: 'Public',
-              y: 61.41,
-              color: colors.blue
-            }, {
-              name: 'Private',
-              y: 11.84,
-              color: colors.orange
-            }]
-          }]
-        },
-        pilot: {
-          chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-          },
-          title: {
-            text: 'Pilot'
-          },
-          tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          plotOptions: {
-            pie: {
-              allowPointSelect: true,
-              cursor: 'pointer',
-              dataLabels: {
-                enabled: false
-              },
-              showInLegend: true
-            }
-          },
-          series: [{
-            name: 'Pilot',
-            colorByPoint: true,
-            data: [{
-              name: 'Public',
-              y: 1000,
-              color: colors.blue
-            }, {
-              name: 'Private',
-              y: 200,
-              color: colors.orange
-            }]
-          }]
-        }
-      },
-      ipdUtilization: {
-        nonPilot: {
-          chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-          },
-          title: {
-            text: 'Non-Pilot Area (Average)'
-          },
-          tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          plotOptions: {
-            pie: {
-              allowPointSelect: true,
-              cursor: 'pointer',
-              dataLabels: {
-                enabled: false
-              },
-              showInLegend: true
-            }
-          },
-          series: [{
-            name: 'Non-Pilot Area (Average)',
-            colorByPoint: true,
-            data: [{
-              name: 'Public',
-              y: 61.41,
-              color: colors.blue
-            }, {
-              name: 'Private',
-              y: 11.84,
-              color: colors.orange
-            }]
-          }]
-        },
-        pilot: {
-          chart: {
-            plotBackgroundColor: null,
-            plotBorderWidth: null,
-            plotShadow: false,
-            type: 'pie'
-          },
-          title: {
-            text: 'Pilot'
-          },
-          tooltip: {
-            pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-          },
-          plotOptions: {
-            pie: {
-              allowPointSelect: true,
-              cursor: 'pointer',
-              dataLabels: {
-                enabled: false
-              },
-              showInLegend: true
-            }
-          },
-          series: [{
-            name: 'Pilot',
-            colorByPoint: true,
-            data: [{
-              name: 'Public',
-              y: 1000,
-              color: colors.blue
-            }, {
-              name: 'Private',
-              y: 200,
-              color: colors.orange
-            }]
-          }]
-        }
+        opdSectorUtilization: []
       }
     };
   },
   created: function created() {
     this.getCountyPopulation(this.selected);
+    this.getIPDOPDPilotCountyDetails(this.selected);
+    this.getOPDLevelofFacilityDetails(0);
+    this.getIPDLevelofFacilityDetails(0);
     this.getPilotAreas();
-    this.getFacilityReferrals();
-    this.getUtilizationSectorData();
+    this.getFacilityReferrals(this.selected);
+    this.getUtilizationSectorData(this.selected);
+    this.getFacilityLOS(this.selected);
   },
   methods: {
-    getUtilizationSectorData: function getUtilizationSectorData() {
+    getUtilizationSectorData: function getUtilizationSectorData(county_id) {
       var _this = this;
 
-      axios.get('/api/data/utilization/sector/opd-ipd').then(function (res) {
+      this.loadingNumber++;
+      var c_id = county_id == "" ? 0 : county_id;
+      axios.get("/api/data/utilization/sector/opd-ipd/".concat(c_id)).then(function (res) {
         _this.data.ipdSectorUtilization = res.data[0];
         _this.data.opdSectorUtilization = res.data[1];
+        _this.loadingNumber--;
       });
     },
     getPilotAreas: function getPilotAreas() {
       var _this2 = this;
 
+      this.loadingNumber++;
       axios.get('/api/counties/pilot').then(function (res) {
         var options = _.map(res.data, function (o) {
           return {
@@ -6695,37 +6505,48 @@ __webpack_require__.r(__webpack_exports__);
         var merge = _this2.options.concat(options);
 
         _this2.options = merge;
+        _this2.loadingNumber--;
       });
     },
     getIPDOPDPilotCountyDetails: function getIPDOPDPilotCountyDetails(county_id) {
       var _this3 = this;
 
+      this.loadingNumber++;
       axios.post('/api/data/counties/pilot/opd-ipd', {
         id: county_id
       }).then(function (res) {
         _this3.data.opdIpdData = res.data;
+        _this3.loadingNumber--;
       });
     },
     getOPDLevelofFacilityDetails: function getOPDLevelofFacilityDetails(county_id) {
       var _this4 = this;
 
+      this.loadingNumber++;
+      var c_id = county_id == "" ? 0 : county_id;
       axios.post('/api/data/counties/facility/level/opd', {
-        id: county_id
+        id: c_id
       }).then(function (res) {
         _this4.data.opdFacilityLevelData = res.data;
+        _this4.loadingNumber--;
       });
     },
     getIPDLevelofFacilityDetails: function getIPDLevelofFacilityDetails(county_id) {
       var _this5 = this;
 
+      this.loadingNumber++;
+      var c_id = county_id == "" ? 0 : county_id;
       axios.post('/api/data/counties/facility/level/ipd', {
-        id: county_id
+        id: c_id
       }).then(function (res) {
         _this5.data.ipdFacilityLevelData = res.data;
+        _this5.loadingNumber--;
       });
     },
     getCountyPopulation: function getCountyPopulation(val) {
       var _this6 = this;
+
+      this.loadingNumber++;
 
       if (val == "") {
         val = 'national';
@@ -6733,15 +6554,30 @@ __webpack_require__.r(__webpack_exports__);
 
       axios.get("/api/data/counties/population?q=".concat(val)).then(function (res) {
         _this6.data.population = res.data;
+        _this6.loadingNumber--;
       });
     },
-    getFacilityReferrals: function getFacilityReferrals() {
+    getFacilityReferrals: function getFacilityReferrals(county_id) {
       var _this7 = this;
 
-      axios.get('/api/data/referrals').then(function (res) {
+      this.loadingNumber++;
+      var c_id = county_id == "" ? 0 : county_id;
+      axios.get("/api/data/referrals/".concat(c_id)).then(function (res) {
         var _data = _.orderBy(res.data, ['referrals'], ['desc']);
 
         _this7.data.referralData = _data;
+        _this7.loadingNumber--;
+      });
+    },
+    getFacilityLOS: function getFacilityLOS(county_id) {
+      var _this8 = this;
+
+      this.loadingNumber++;
+      var c_id = county_id == "" ? 0 : county_id;
+      axios.get("/api/data/los/".concat(c_id)).then(function (res) {
+        // var _data = _.orderBy(res.data, ['referrals'], ['desc'])
+        _this8.data.losData = res.data;
+        _this8.loadingNumber--;
       });
     }
   },
@@ -6751,17 +6587,30 @@ __webpack_require__.r(__webpack_exports__);
       this.getIPDOPDPilotCountyDetails(val);
       this.getOPDLevelofFacilityDetails(val);
       this.getIPDLevelofFacilityDetails(val);
+      this.getUtilizationSectorData(val);
+      this.getFacilityReferrals(val);
+      this.getFacilityLOS(val);
+    },
+    loadingNumber: function loadingNumber(val) {
+      if (val > 0) {
+        this.isLoading = true;
+      } else {
+        this.isLoading = false;
+      }
     }
   },
   computed: {
     totalReferrals: function totalReferrals() {
       return _.sumBy(this.data.referralData, 'referrals');
     },
+    referralRate: function referralRate() {// return (1000 * this.totalReferrals) / ()
+    },
     top10referrals: function top10referrals() {
-      return this.data.referralData.slice(0, 10);
+      var top = this.data.referralData.slice(0, 10);
+      return top;
     },
     ipdSectorUtilizationGraphs: function ipdSectorUtilizationGraphs() {
-      var _this8 = this;
+      var _this9 = this;
 
       var charts = {};
 
@@ -6773,8 +6622,8 @@ __webpack_require__.r(__webpack_exports__);
         charts[area] = {};
         var data = [];
 
-        _.forOwn(_this8.sectors, function (sector, k) {
-          var selected = _.find(_this8.data.ipdSectorUtilization, ['facility_owner', sector]);
+        _.forOwn(_this9.sectors, function (sector, k) {
+          var selected = _.find(_this9.data.ipdSectorUtilization, ['facility_owner', sector]);
 
           if (selected !== undefined) {
             data.push({
@@ -6820,7 +6669,7 @@ __webpack_require__.r(__webpack_exports__);
       return charts;
     },
     opdSectorUtilizationGraphs: function opdSectorUtilizationGraphs() {
-      var _this9 = this;
+      var _this10 = this;
 
       var charts = {};
 
@@ -6832,8 +6681,8 @@ __webpack_require__.r(__webpack_exports__);
         charts[area] = {};
         var data = [];
 
-        _.forOwn(_this9.sectors, function (sector, k) {
-          var selected = _.find(_this9.data.opdSectorUtilization, ['facility_owner', sector]);
+        _.forOwn(_this10.sectors, function (sector, k) {
+          var selected = _.find(_this10.data.opdSectorUtilization, ['facility_owner', sector]);
 
           if (selected !== undefined) {
             data.push({
@@ -40067,6 +39916,25 @@ __webpack_require__(/*! ./_iter-define */ "./node_modules/core-js/library/module
   this._i += point.length;
   return { value: point, done: false };
 });
+
+
+/***/ }),
+
+/***/ "./node_modules/css-loader/index.js?!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loading-overlay/dist/vue-loading.css":
+/*!***********************************************************************************************************************************************!*\
+  !*** ./node_modules/css-loader??ref--6-1!./node_modules/postcss-loader/src??ref--6-2!./node_modules/vue-loading-overlay/dist/vue-loading.css ***!
+  \***********************************************************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+exports = module.exports = __webpack_require__(/*! ../../css-loader/lib/css-base.js */ "./node_modules/css-loader/lib/css-base.js")(false);
+// imports
+
+
+// module
+exports.push([module.i, ".vld-overlay {\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n  align-items: center;\n  display: none;\n  justify-content: center;\n  overflow: hidden;\n  z-index: 1\n}\n\n.vld-overlay.is-active {\n  display: flex\n}\n\n.vld-overlay.is-full-page {\n  z-index: 999;\n  position: fixed\n}\n\n.vld-overlay .vld-background {\n  bottom: 0;\n  left: 0;\n  position: absolute;\n  right: 0;\n  top: 0;\n  background: #fff;\n  opacity: 0.5\n}\n\n.vld-overlay .vld-icon, .vld-parent {\n  position: relative\n}\n\n", ""]);
+
+// exports
 
 
 /***/ }),
@@ -77792,308 +77660,390 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _c("div", { staticClass: "header-body mb-3" }, [
-      _c("div", { staticClass: "row align-items-end" }, [
-        _c(
-          "div",
-          { staticClass: "col" },
-          [
-            _c("b-form-select", {
-              attrs: { options: _vm.options },
-              model: {
-                value: _vm.selected,
-                callback: function($$v) {
-                  _vm.selected = $$v
-                },
-                expression: "selected"
-              }
-            })
-          ],
-          1
-        ),
-        _vm._v(" "),
-        _c("div", { staticClass: "col" }, [
-          _c("h6", { staticClass: "header-pretitle" }, [
-            _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
-          ]),
-          _vm._v(" "),
-          _c("h1", { staticClass: "header-title" }, [
-            _vm._v(
-              "\n\t\t\t\t\t" +
-                _vm._s(_vm._f("numFormat")(_vm.data.population)) +
-                "\n\t\t\t\t"
-            )
-          ])
-        ]),
-        _vm._v(" "),
-        _vm._m(0),
-        _vm._v(" "),
-        _vm._m(1)
-      ])
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(2),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "card-body" },
-            [_c("highcharts", { attrs: { options: _vm.opdIpd } })],
-            1
-          )
-        ])
-      ]),
+  return _c(
+    "div",
+    [
+      _c("loading", {
+        attrs: {
+          active: _vm.isLoading,
+          color: "#2196F3",
+          "can-cancel": false,
+          "is-full-page": _vm.fullPage
+        },
+        on: {
+          "update:active": function($event) {
+            _vm.isLoading = $event
+          }
+        }
+      }),
       _vm._v(" "),
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(3),
-          _vm._v(" "),
+      _c("div", { staticClass: "header-body mb-3" }, [
+        _c("div", { staticClass: "row align-items-end" }, [
           _c(
             "div",
-            { staticClass: "card-body" },
-            [_c("highcharts", { attrs: { options: _vm.opdLevelofFacility } })],
-            1
-          )
-        ])
-      ]),
-      _vm._v(" "),
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(4),
-          _vm._v(" "),
-          _c(
-            "div",
-            { staticClass: "card-body" },
-            [_c("highcharts", { attrs: { options: _vm.ipdLevelofFacility } })],
-            1
-          )
-        ])
-      ])
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(5),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("div", { staticClass: "row" }, [
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: {
-                      options: _vm.opdSectorUtilizationGraphs["Non Pilot"]
-                    }
-                  })
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: { options: _vm.opdSectorUtilizationGraphs["Pilot"] }
-                  })
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: { options: _vm.opdSectorUtilizationGraphs["Pilot"] }
-                  })
-                ],
-                1
-              )
-            ])
-          ])
-        ])
-      ])
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(6),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("div", { staticClass: "row" }, [
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: {
-                      options: _vm.ipdSectorUtilizationGraphs["Non Pilot"]
-                    }
-                  })
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: { options: _vm.ipdSectorUtilizationGraphs["Pilot"] }
-                  })
-                ],
-                1
-              ),
-              _vm._v(" "),
-              _c(
-                "div",
-                { staticClass: "col" },
-                [
-                  _c("highcharts", {
-                    attrs: { options: _vm.ipdSectorUtilizationGraphs["Pilot"] }
-                  })
-                ],
-                1
-              )
-            ])
-          ])
-        ])
-      ])
-    ]),
-    _vm._v(" "),
-    _c("div", { staticClass: "row" }, [
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(7),
-          _vm._v(" "),
-          _c("div", { staticClass: "card-body" }, [
-            _c("ul", { staticClass: "list-group list-group-flush" }, [
-              _c(
-                "li",
-                {
-                  staticClass:
-                    "list-group-item d-flex align-items-center justify-content-between px-0"
-                },
-                [
-                  _c("small", [_vm._v("Rate of referrals in pilot area")]),
-                  _vm._v(" "),
-                  _c("small", [
-                    _c("strong", { staticClass: "text-success text-bold" }, [
-                      _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
-                    ]),
-                    _vm._v(" per 1000 visits")
-                  ])
-                ]
-              ),
-              _vm._v(" "),
-              _vm._m(8),
-              _vm._v(" "),
-              _c(
-                "li",
-                {
-                  staticClass:
-                    "list-group-item d-flex align-items-center justify-content-between px-0"
-                },
-                [
-                  _c("small", [_vm._v("Rate of referrals in pilot area 2018")]),
-                  _vm._v(" "),
-                  _c("small", [
-                    _c("strong", { staticClass: "text-success text-bold" }, [
-                      _vm._v(_vm._s(_vm.totalReferrals))
-                    ]),
-                    _vm._v(" per 1000 visits")
-                  ])
-                ]
-              )
-            ])
-          ]),
-          _vm._v(" "),
-          _c(
-            "h3",
+            { staticClass: "col" },
             [
-              _c("center", [_vm._v("Facilities with highest rate of referral")])
+              _c("b-form-select", {
+                attrs: { options: _vm.options },
+                model: {
+                  value: _vm.selected,
+                  callback: function($$v) {
+                    _vm.selected = $$v
+                  },
+                  expression: "selected"
+                }
+              })
             ],
             1
           ),
           _vm._v(" "),
-          _c("div", { staticClass: "table-responsive mb-0" }, [
+          _c("div", { staticClass: "col" }, [
+            _c("h6", { staticClass: "header-pretitle" }, [
+              _vm._v("\n\t\t\t\t\tTotal Population\n\t\t\t\t")
+            ]),
+            _vm._v(" "),
+            _c("h1", { staticClass: "header-title" }, [
+              _vm._v(
+                "\n\t\t\t\t\t" +
+                  _vm._s(_vm._f("numFormat")(_vm.data.population)) +
+                  "\n\t\t\t\t"
+              )
+            ])
+          ]),
+          _vm._v(" "),
+          _vm._m(0),
+          _vm._v(" "),
+          _vm._m(1)
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(2),
+            _vm._v(" "),
             _c(
-              "table",
-              { staticClass: "table table-sm table-nowrap card-table" },
+              "div",
+              { staticClass: "card-body" },
+              [_c("highcharts", { attrs: { options: _vm.opdIpd } })],
+              1
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(3),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "card-body" },
               [
-                _vm._m(9),
-                _vm._v(" "),
-                _c(
-                  "tbody",
-                  { staticClass: "list" },
-                  _vm._l(_vm.top10referrals, function(facility) {
-                    return _c("tr", [
-                      _c("td", [_vm._v(_vm._s(facility.facility_name))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.county))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.facility_level))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.referrals))])
-                    ])
-                  }),
-                  0
-                )
-              ]
+                _c("highcharts", { attrs: { options: _vm.opdLevelofFacility } })
+              ],
+              1
+            )
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(4),
+            _vm._v(" "),
+            _c(
+              "div",
+              { staticClass: "card-body" },
+              [
+                _c("highcharts", { attrs: { options: _vm.ipdLevelofFacility } })
+              ],
+              1
             )
           ])
         ])
       ]),
       _vm._v(" "),
-      _c("div", { staticClass: "col" }, [
-        _c("div", { staticClass: "card" }, [
-          _vm._m(10),
-          _vm._v(" "),
-          _vm._m(11),
-          _vm._v(" "),
-          _c(
-            "h3",
-            [_c("center", [_vm._v("Facilities with highest Average LOS")])],
-            1
-          ),
-          _vm._v(" "),
-          _c("div", { staticClass: "table-responsive mb-0" }, [
-            _c(
-              "table",
-              { staticClass: "table table-sm table-nowrap card-table" },
-              [
-                _vm._m(12),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(5),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "row" }, [
+                _c(
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.opdSectorUtilizationGraphs["Non Pilot"]
+                      }
+                    })
+                  ],
+                  1
+                ),
                 _vm._v(" "),
                 _c(
-                  "tbody",
-                  { staticClass: "list" },
-                  _vm._l(_vm.data.referralFacilities, function(facility) {
-                    return _c("tr", [
-                      _c("td", [_vm._v(_vm._s(facility.name))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.county))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.level))]),
-                      _vm._v(" "),
-                      _c("td", [_vm._v(_vm._s(facility.los))])
-                    ])
-                  }),
-                  0
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.opdSectorUtilizationGraphs["Pilot"]
+                      }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.opdSectorUtilizationGraphs["Pilot"]
+                      }
+                    })
+                  ],
+                  1
                 )
-              ]
-            )
+              ])
+            ])
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(6),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("div", { staticClass: "row" }, [
+                _c(
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.ipdSectorUtilizationGraphs["Non Pilot"]
+                      }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.ipdSectorUtilizationGraphs["Pilot"]
+                      }
+                    })
+                  ],
+                  1
+                ),
+                _vm._v(" "),
+                _c(
+                  "div",
+                  { staticClass: "col" },
+                  [
+                    _c("highcharts", {
+                      attrs: {
+                        options: _vm.ipdSectorUtilizationGraphs["Pilot"]
+                      }
+                    })
+                  ],
+                  1
+                )
+              ])
+            ])
+          ])
+        ])
+      ]),
+      _vm._v(" "),
+      _c("div", { staticClass: "row" }, [
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(7),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("ul", { staticClass: "list-group list-group-flush" }, [
+                _c(
+                  "li",
+                  {
+                    staticClass:
+                      "list-group-item d-flex align-items-center justify-content-between px-0"
+                  },
+                  [
+                    _c("small", [_vm._v("Rate of referrals in pilot area")]),
+                    _vm._v(" "),
+                    _c("small", [
+                      _c("strong", { staticClass: "text-success text-bold" }, [
+                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
+                      ]),
+                      _vm._v(" per 1000 visits")
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _vm._m(8),
+                _vm._v(" "),
+                _c(
+                  "li",
+                  {
+                    staticClass:
+                      "list-group-item d-flex align-items-center justify-content-between px-0"
+                  },
+                  [
+                    _c("small", [
+                      _vm._v("Rate of referrals in pilot area 2018")
+                    ]),
+                    _vm._v(" "),
+                    _c("small", [
+                      _c("strong", { staticClass: "text-success text-bold" }, [
+                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
+                      ]),
+                      _vm._v(" per 1000 visits")
+                    ])
+                  ]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c(
+              "h3",
+              [
+                _c("center", [
+                  _vm._v("Facilities with highest rate of referral")
+                ])
+              ],
+              1
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "table-responsive mb-0" }, [
+              _c(
+                "table",
+                { staticClass: "table table-sm table-nowrap card-table" },
+                [
+                  _vm._m(9),
+                  _vm._v(" "),
+                  _c(
+                    "tbody",
+                    { staticClass: "list" },
+                    _vm._l(_vm.top10referrals, function(facility) {
+                      return _c("tr", [
+                        _c("td", [_vm._v(_vm._s(facility.facility_name))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.county))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.facility_level))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.referrals))])
+                      ])
+                    }),
+                    0
+                  )
+                ]
+              )
+            ])
+          ])
+        ]),
+        _vm._v(" "),
+        _c("div", { staticClass: "col" }, [
+          _c("div", { staticClass: "card" }, [
+            _vm._m(10),
+            _vm._v(" "),
+            _c("div", { staticClass: "card-body" }, [
+              _c("ul", { staticClass: "list-group list-group-flush" }, [
+                _c(
+                  "li",
+                  {
+                    staticClass:
+                      "list-group-item d-flex align-items-center justify-content-between px-0"
+                  },
+                  [
+                    _c("small", [
+                      _vm._v("Average LOS in pilot area (selected above)")
+                    ]),
+                    _vm._v(" "),
+                    _c("small", [
+                      _c("strong", { staticClass: "text-success text-bold" }, [
+                        _vm._v(
+                          _vm._s(_vm._f("numFormat")(_vm.data.losData.average))
+                        )
+                      ]),
+                      _vm._v(" bed days")
+                    ])
+                  ]
+                ),
+                _vm._v(" "),
+                _vm._m(11),
+                _vm._v(" "),
+                _c(
+                  "li",
+                  {
+                    staticClass:
+                      "list-group-item d-flex align-items-center justify-content-between px-0"
+                  },
+                  [
+                    _c("small", [
+                      _vm._v("Rate of referrals in pilot area 2018")
+                    ]),
+                    _vm._v(" "),
+                    _c("small", [
+                      _c("strong", { staticClass: "text-danger text-bold" }, [
+                        _vm._v(
+                          _vm._s(_vm._f("numFormat")(_vm.data.losData.average))
+                        )
+                      ]),
+                      _vm._v(" bed days")
+                    ])
+                  ]
+                )
+              ])
+            ]),
+            _vm._v(" "),
+            _c(
+              "h3",
+              [_c("center", [_vm._v("Facilities with highest Average LOS")])],
+              1
+            ),
+            _vm._v(" "),
+            _c("div", { staticClass: "table-responsive mb-0" }, [
+              _c(
+                "table",
+                { staticClass: "table table-sm table-nowrap card-table" },
+                [
+                  _vm._m(12),
+                  _vm._v(" "),
+                  _c(
+                    "tbody",
+                    { staticClass: "list" },
+                    _vm._l(_vm.data.losData.data, function(facility) {
+                      return _c("tr", [
+                        _c("td", [_vm._v(_vm._s(facility.facility_name))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.county))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.facility_level))]),
+                        _vm._v(" "),
+                        _c("td", [_vm._v(_vm._s(facility.los))])
+                      ])
+                    }),
+                    0
+                  )
+                ]
+              )
+            ])
           ])
         ])
       ])
-    ])
-  ])
+    ],
+    1
+  )
 }
 var staticRenderFns = [
   function() {
@@ -78262,63 +78212,23 @@ var staticRenderFns = [
     var _vm = this
     var _h = _vm.$createElement
     var _c = _vm._self._c || _h
-    return _c("div", { staticClass: "card-body" }, [
-      _c("ul", { staticClass: "list-group list-group-flush" }, [
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Average LOS in pilot area (selected above)")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-success text-bold" }, [
-                _vm._v("2")
-              ]),
-              _vm._v(" bed days")
-            ])
-          ]
-        ),
+    return _c(
+      "li",
+      {
+        staticClass:
+          "list-group-item d-flex align-items-center justify-content-between px-0"
+      },
+      [
+        _c("small", [_vm._v("Rate of referrals in non-pilot area")]),
         _vm._v(" "),
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Rate of referrals in non-pilot area")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-success text-bold" }, [
-                _vm._v("10")
-              ]),
-              _vm._v(" bed days")
-            ])
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "li",
-          {
-            staticClass:
-              "list-group-item d-flex align-items-center justify-content-between px-0"
-          },
-          [
-            _c("small", [_vm._v("Rate of referrals in pilot area 2018")]),
-            _vm._v(" "),
-            _c("small", [
-              _c("strong", { staticClass: "text-danger text-bold" }, [
-                _vm._v("15")
-              ]),
-              _vm._v(" bed days")
-            ])
-          ]
-        )
-      ])
-    ])
+        _c("small", [
+          _c("strong", { staticClass: "text-success text-bold" }, [
+            _vm._v("0")
+          ]),
+          _vm._v(" bed days")
+        ])
+      ]
+    )
   },
   function() {
     var _vm = this
@@ -78447,6 +78357,47 @@ function normalizeComponent (
   }
 }
 
+
+/***/ }),
+
+/***/ "./node_modules/vue-loading-overlay/dist/vue-loading.css":
+/*!***************************************************************!*\
+  !*** ./node_modules/vue-loading-overlay/dist/vue-loading.css ***!
+  \***************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+
+var content = __webpack_require__(/*! !../../css-loader??ref--6-1!../../postcss-loader/src??ref--6-2!./vue-loading.css */ "./node_modules/css-loader/index.js?!./node_modules/postcss-loader/src/index.js?!./node_modules/vue-loading-overlay/dist/vue-loading.css");
+
+if(typeof content === 'string') content = [[module.i, content, '']];
+
+var transform;
+var insertInto;
+
+
+
+var options = {"hmr":true}
+
+options.transform = transform
+options.insertInto = undefined;
+
+var update = __webpack_require__(/*! ../../style-loader/lib/addStyles.js */ "./node_modules/style-loader/lib/addStyles.js")(content, options);
+
+if(content.locals) module.exports = content.locals;
+
+if(false) {}
+
+/***/ }),
+
+/***/ "./node_modules/vue-loading-overlay/dist/vue-loading.min.js":
+/*!******************************************************************!*\
+  !*** ./node_modules/vue-loading-overlay/dist/vue-loading.min.js ***!
+  \******************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+!function(t,e){ true?module.exports=e():undefined}("undefined"!=typeof self?self:this,function(){return function(t){var e={};function i(n){if(e[n])return e[n].exports;var r=e[n]={i:n,l:!1,exports:{}};return t[n].call(r.exports,r,r.exports,i),r.l=!0,r.exports}return i.m=t,i.c=e,i.d=function(t,e,n){i.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:n})},i.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},i.t=function(t,e){if(1&e&&(t=i(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var n=Object.create(null);if(i.r(n),Object.defineProperty(n,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)i.d(n,r,function(e){return t[e]}.bind(null,r));return n},i.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return i.d(e,"a",e),e},i.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},i.p="",i(i.s=1)}([function(t,e,i){},function(t,e,i){"use strict";i.r(e);var n="undefined"!=typeof window?window.HTMLElement:Object,r={mounted:function(){document.addEventListener("focusin",this.focusIn)},methods:{focusIn:function(t){if(this.isActive&&t.target!==this.$el&&!this.$el.contains(t.target)){var e=this.container?this.container:this.isFullPage?null:this.$el.parentElement;(this.isFullPage||e&&e.contains(t.target))&&(t.preventDefault(),this.$el.focus())}}},beforeDestroy:function(){document.removeEventListener("focusin",this.focusIn)}};function a(t,e,i,n,r,a,o,s){var u,l="function"==typeof t?t.options:t;if(e&&(l.render=e,l.staticRenderFns=i,l._compiled=!0),n&&(l.functional=!0),a&&(l._scopeId="data-v-"+a),o?(u=function(t){(t=t||this.$vnode&&this.$vnode.ssrContext||this.parent&&this.parent.$vnode&&this.parent.$vnode.ssrContext)||"undefined"==typeof __VUE_SSR_CONTEXT__||(t=__VUE_SSR_CONTEXT__),r&&r.call(this,t),t&&t._registeredComponents&&t._registeredComponents.add(o)},l._ssrRegister=u):r&&(u=s?function(){r.call(this,this.$root.$options.shadowRoot)}:r),u)if(l.functional){l._injectStyles=u;var c=l.render;l.render=function(t,e){return u.call(e),c(t,e)}}else{var d=l.beforeCreate;l.beforeCreate=d?[].concat(d,u):[u]}return{exports:t,options:l}}var o=a({name:"spinner",props:{color:{type:String,default:"#000"},height:{type:Number,default:64},width:{type:Number,default:64}}},function(){var t=this.$createElement,e=this._self._c||t;return e("svg",{attrs:{viewBox:"0 0 38 38",xmlns:"http://www.w3.org/2000/svg",width:this.width,height:this.height,stroke:this.color}},[e("g",{attrs:{fill:"none","fill-rule":"evenodd"}},[e("g",{attrs:{transform:"translate(1 1)","stroke-width":"2"}},[e("circle",{attrs:{"stroke-opacity":".25",cx:"18",cy:"18",r:"18"}}),e("path",{attrs:{d:"M36 18c0-9.94-8.06-18-18-18"}},[e("animateTransform",{attrs:{attributeName:"transform",type:"rotate",from:"0 18 18",to:"360 18 18",dur:"0.8s",repeatCount:"indefinite"}})],1)])])])},[],!1,null,null,null).exports,s=a({name:"dots",props:{color:{type:String,default:"#000"},height:{type:Number,default:240},width:{type:Number,default:60}}},function(){var t=this.$createElement,e=this._self._c||t;return e("svg",{attrs:{viewBox:"0 0 120 30",xmlns:"http://www.w3.org/2000/svg",fill:this.color,width:this.width,height:this.height}},[e("circle",{attrs:{cx:"15",cy:"15",r:"15"}},[e("animate",{attrs:{attributeName:"r",from:"15",to:"15",begin:"0s",dur:"0.8s",values:"15;9;15",calcMode:"linear",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"fill-opacity",from:"1",to:"1",begin:"0s",dur:"0.8s",values:"1;.5;1",calcMode:"linear",repeatCount:"indefinite"}})]),e("circle",{attrs:{cx:"60",cy:"15",r:"9","fill-opacity":"0.3"}},[e("animate",{attrs:{attributeName:"r",from:"9",to:"9",begin:"0s",dur:"0.8s",values:"9;15;9",calcMode:"linear",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"fill-opacity",from:"0.5",to:"0.5",begin:"0s",dur:"0.8s",values:".5;1;.5",calcMode:"linear",repeatCount:"indefinite"}})]),e("circle",{attrs:{cx:"105",cy:"15",r:"15"}},[e("animate",{attrs:{attributeName:"r",from:"15",to:"15",begin:"0s",dur:"0.8s",values:"15;9;15",calcMode:"linear",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"fill-opacity",from:"1",to:"1",begin:"0s",dur:"0.8s",values:"1;.5;1",calcMode:"linear",repeatCount:"indefinite"}})])])},[],!1,null,null,null).exports,u=a({name:"bars",props:{color:{type:String,default:"#000"},height:{type:Number,default:40},width:{type:Number,default:40}}},function(){var t=this.$createElement,e=this._self._c||t;return e("svg",{attrs:{xmlns:"http://www.w3.org/2000/svg",viewBox:"0 0 30 30",height:this.height,width:this.width,fill:this.color}},[e("rect",{attrs:{x:"0",y:"13",width:"4",height:"5"}},[e("animate",{attrs:{attributeName:"height",attributeType:"XML",values:"5;21;5",begin:"0s",dur:"0.6s",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"y",attributeType:"XML",values:"13; 5; 13",begin:"0s",dur:"0.6s",repeatCount:"indefinite"}})]),e("rect",{attrs:{x:"10",y:"13",width:"4",height:"5"}},[e("animate",{attrs:{attributeName:"height",attributeType:"XML",values:"5;21;5",begin:"0.15s",dur:"0.6s",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"y",attributeType:"XML",values:"13; 5; 13",begin:"0.15s",dur:"0.6s",repeatCount:"indefinite"}})]),e("rect",{attrs:{x:"20",y:"13",width:"4",height:"5"}},[e("animate",{attrs:{attributeName:"height",attributeType:"XML",values:"5;21;5",begin:"0.3s",dur:"0.6s",repeatCount:"indefinite"}}),e("animate",{attrs:{attributeName:"y",attributeType:"XML",values:"13; 5; 13",begin:"0.3s",dur:"0.6s",repeatCount:"indefinite"}})])])},[],!1,null,null,null).exports,l=a({name:"vue-loading",mixins:[r],props:{active:Boolean,programmatic:Boolean,container:[Object,Function,n],isFullPage:{type:Boolean,default:!0},transition:{type:String,default:"fade"},canCancel:Boolean,onCancel:{type:Function,default:function(){}},color:String,backgroundColor:String,opacity:Number,width:Number,height:Number,zIndex:Number,loader:{type:String,default:"spinner"}},data:function(){return{isActive:this.active}},components:{Spinner:o,Dots:s,Bars:u},beforeMount:function(){this.programmatic&&(this.container?(this.isFullPage=!1,this.container.appendChild(this.$el)):document.body.appendChild(this.$el))},mounted:function(){this.programmatic&&(this.isActive=!0),document.addEventListener("keyup",this.keyPress)},methods:{cancel:function(){this.canCancel&&this.isActive&&(this.hide(),this.onCancel.apply(null,arguments))},hide:function(){var t=this;this.$emit("hide"),this.$emit("update:active",!1),this.programmatic&&(this.isActive=!1,setTimeout(function(){var e;t.$destroy(),void 0!==(e=t.$el).remove?e.remove():e.parentNode.removeChild(e)},150))},keyPress:function(t){27===t.keyCode&&this.cancel()}},watch:{active:function(t){this.isActive=t}},beforeDestroy:function(){document.removeEventListener("keyup",this.keyPress)}},function(){var t=this,e=t.$createElement,i=t._self._c||e;return i("transition",{attrs:{name:t.transition}},[i("div",{directives:[{name:"show",rawName:"v-show",value:t.isActive,expression:"isActive"}],staticClass:"vld-overlay is-active",class:{"is-full-page":t.isFullPage},style:{zIndex:this.zIndex},attrs:{tabindex:"0","aria-busy":t.isActive,"aria-label":"Loading"}},[i("div",{staticClass:"vld-background",style:{background:this.backgroundColor,opacity:this.opacity},on:{click:function(e){return e.preventDefault(),t.cancel(e)}}}),i("div",{staticClass:"vld-icon"},[t._t("before"),t._t("default",[i(t.loader,{tag:"component",attrs:{color:t.color,width:t.width,height:t.height}})]),t._t("after")],2)])])},[],!1,null,null,null).exports,c=function(t){var e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{};return{show:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:e,r=arguments.length>1&&void 0!==arguments[1]?arguments[1]:i,a=Object.assign({},e,n,{programmatic:!0}),o=new(t.extend(l))({el:document.createElement("div"),propsData:a}),s=Object.assign({},i,r);return Object.keys(s).map(function(t){o.$slots[t]=s[t]}),o}}};i(0);l.install=function(t){var e=arguments.length>1&&void 0!==arguments[1]?arguments[1]:{},i=arguments.length>2&&void 0!==arguments[2]?arguments[2]:{},n=c(t,e,i);t.$loading=n,t.prototype.$loading=n};e.default=l}]).default});
 
 /***/ }),
 
@@ -93547,41 +93498,45 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var highcharts_vue__WEBPACK_IMPORTED_MODULE_2___default = /*#__PURE__*/__webpack_require__.n(highcharts_vue__WEBPACK_IMPORTED_MODULE_2__);
 /* harmony import */ var vue_numeric__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! vue-numeric */ "./node_modules/vue-numeric/dist/vue-numeric.min.js");
 /* harmony import */ var vue_numeric__WEBPACK_IMPORTED_MODULE_3___default = /*#__PURE__*/__webpack_require__.n(vue_numeric__WEBPACK_IMPORTED_MODULE_3__);
-/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
-/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_4__);
-/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! highcharts/modules/stock.js */ "./node_modules/highcharts/modules/stock.js");
-/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_5__);
-/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! highcharts/modules/map.js */ "./node_modules/highcharts/modules/map.js");
-/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_6__);
-/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! highcharts/modules/gantt.js */ "./node_modules/highcharts/modules/gantt.js");
-/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_7__);
-/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! highcharts/modules/drilldown.js */ "./node_modules/highcharts/modules/drilldown.js");
-/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_8__);
-/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! highcharts/highcharts-more.js */ "./node_modules/highcharts/highcharts-more.js");
-/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_9__);
-/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! highcharts/modules/solid-gauge.js */ "./node_modules/highcharts/modules/solid-gauge.js");
-/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_10__);
-/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! vue-filter-number-format */ "./node_modules/vue-filter-number-format/dist/vue-filter-number-format.js");
-/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11__);
-/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ../../public/dashboard/fonts/feather/feather.min.css */ "./public/dashboard/fonts/feather/feather.min.css");
-/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_12__);
-/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../public/dashboard/css/theme.min.css */ "./public/dashboard/css/theme.min.css");
-/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_13__);
-/* harmony import */ var _views_App__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ./views/App */ "./resources/js/views/App.vue");
-/* harmony import */ var _views_dashboard_Home__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! ./views/dashboard/Home */ "./resources/js/views/dashboard/Home.vue");
-/* harmony import */ var _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./views/dashboard/Enrollment */ "./resources/js/views/dashboard/Enrollment.vue");
-/* harmony import */ var _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./views/dashboard/Utilization */ "./resources/js/views/dashboard/Utilization.vue");
-/* harmony import */ var _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./views/dashboard/ServiceDelivery */ "./resources/js/views/dashboard/ServiceDelivery.vue");
-/* harmony import */ var _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./views/dashboard/FinancialHealth */ "./resources/js/views/dashboard/FinancialHealth.vue");
-/* harmony import */ var _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./views/dashboard/UploadData */ "./resources/js/views/dashboard/UploadData.vue");
-/* harmony import */ var _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./views/dashboard/Settings */ "./resources/js/views/dashboard/Settings.vue");
-/* harmony import */ var _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./views/dashboard/test/TestEnrollment */ "./resources/js/views/dashboard/test/TestEnrollment.vue");
-/* harmony import */ var _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./views/dashboard/test/TestUtilization */ "./resources/js/views/dashboard/test/TestUtilization.vue");
-/* harmony import */ var _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./views/dashboard/test/TestServiceDelivery */ "./resources/js/views/dashboard/test/TestServiceDelivery.vue");
-/* harmony import */ var _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./views/dashboard/test/TestFinancialHealth */ "./resources/js/views/dashboard/test/TestFinancialHealth.vue");
-/* harmony import */ var _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./views/dashboard/test/TestUploadData */ "./resources/js/views/dashboard/test/TestUploadData.vue");
-/* harmony import */ var _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./views/dashboard/test/TestSettings */ "./resources/js/views/dashboard/test/TestSettings.vue");
-/* harmony import */ var _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./views/dashboard/test/TestDataManagement */ "./resources/js/views/dashboard/test/TestDataManagement.vue");
+/* harmony import */ var vue_loading_overlay__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! vue-loading-overlay */ "./node_modules/vue-loading-overlay/dist/vue-loading.min.js");
+/* harmony import */ var vue_loading_overlay__WEBPACK_IMPORTED_MODULE_4___default = /*#__PURE__*/__webpack_require__.n(vue_loading_overlay__WEBPACK_IMPORTED_MODULE_4__);
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! vue-select */ "./node_modules/vue-select/dist/vue-select.js");
+/* harmony import */ var vue_select__WEBPACK_IMPORTED_MODULE_5___default = /*#__PURE__*/__webpack_require__.n(vue_select__WEBPACK_IMPORTED_MODULE_5__);
+/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! highcharts/modules/stock.js */ "./node_modules/highcharts/modules/stock.js");
+/* harmony import */ var highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_6___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_stock_js__WEBPACK_IMPORTED_MODULE_6__);
+/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! highcharts/modules/map.js */ "./node_modules/highcharts/modules/map.js");
+/* harmony import */ var highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_7___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_map_js__WEBPACK_IMPORTED_MODULE_7__);
+/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! highcharts/modules/gantt.js */ "./node_modules/highcharts/modules/gantt.js");
+/* harmony import */ var highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_8___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_gantt_js__WEBPACK_IMPORTED_MODULE_8__);
+/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! highcharts/modules/drilldown.js */ "./node_modules/highcharts/modules/drilldown.js");
+/* harmony import */ var highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_9___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_drilldown_js__WEBPACK_IMPORTED_MODULE_9__);
+/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! highcharts/highcharts-more.js */ "./node_modules/highcharts/highcharts-more.js");
+/* harmony import */ var highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_10___default = /*#__PURE__*/__webpack_require__.n(highcharts_highcharts_more_js__WEBPACK_IMPORTED_MODULE_10__);
+/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! highcharts/modules/solid-gauge.js */ "./node_modules/highcharts/modules/solid-gauge.js");
+/* harmony import */ var highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_11___default = /*#__PURE__*/__webpack_require__.n(highcharts_modules_solid_gauge_js__WEBPACK_IMPORTED_MODULE_11__);
+/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! vue-filter-number-format */ "./node_modules/vue-filter-number-format/dist/vue-filter-number-format.js");
+/* harmony import */ var vue_filter_number_format__WEBPACK_IMPORTED_MODULE_12___default = /*#__PURE__*/__webpack_require__.n(vue_filter_number_format__WEBPACK_IMPORTED_MODULE_12__);
+/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_13__ = __webpack_require__(/*! ../../public/dashboard/fonts/feather/feather.min.css */ "./public/dashboard/fonts/feather/feather.min.css");
+/* harmony import */ var _public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_13___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_fonts_feather_feather_min_css__WEBPACK_IMPORTED_MODULE_13__);
+/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_14__ = __webpack_require__(/*! ../../public/dashboard/css/theme.min.css */ "./public/dashboard/css/theme.min.css");
+/* harmony import */ var _public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_14___default = /*#__PURE__*/__webpack_require__.n(_public_dashboard_css_theme_min_css__WEBPACK_IMPORTED_MODULE_14__);
+/* harmony import */ var vue_loading_overlay_dist_vue_loading_css__WEBPACK_IMPORTED_MODULE_15__ = __webpack_require__(/*! vue-loading-overlay/dist/vue-loading.css */ "./node_modules/vue-loading-overlay/dist/vue-loading.css");
+/* harmony import */ var vue_loading_overlay_dist_vue_loading_css__WEBPACK_IMPORTED_MODULE_15___default = /*#__PURE__*/__webpack_require__.n(vue_loading_overlay_dist_vue_loading_css__WEBPACK_IMPORTED_MODULE_15__);
+/* harmony import */ var _views_App__WEBPACK_IMPORTED_MODULE_16__ = __webpack_require__(/*! ./views/App */ "./resources/js/views/App.vue");
+/* harmony import */ var _views_dashboard_Home__WEBPACK_IMPORTED_MODULE_17__ = __webpack_require__(/*! ./views/dashboard/Home */ "./resources/js/views/dashboard/Home.vue");
+/* harmony import */ var _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_18__ = __webpack_require__(/*! ./views/dashboard/Enrollment */ "./resources/js/views/dashboard/Enrollment.vue");
+/* harmony import */ var _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_19__ = __webpack_require__(/*! ./views/dashboard/Utilization */ "./resources/js/views/dashboard/Utilization.vue");
+/* harmony import */ var _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_20__ = __webpack_require__(/*! ./views/dashboard/ServiceDelivery */ "./resources/js/views/dashboard/ServiceDelivery.vue");
+/* harmony import */ var _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_21__ = __webpack_require__(/*! ./views/dashboard/FinancialHealth */ "./resources/js/views/dashboard/FinancialHealth.vue");
+/* harmony import */ var _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_22__ = __webpack_require__(/*! ./views/dashboard/UploadData */ "./resources/js/views/dashboard/UploadData.vue");
+/* harmony import */ var _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_23__ = __webpack_require__(/*! ./views/dashboard/Settings */ "./resources/js/views/dashboard/Settings.vue");
+/* harmony import */ var _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_24__ = __webpack_require__(/*! ./views/dashboard/test/TestEnrollment */ "./resources/js/views/dashboard/test/TestEnrollment.vue");
+/* harmony import */ var _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_25__ = __webpack_require__(/*! ./views/dashboard/test/TestUtilization */ "./resources/js/views/dashboard/test/TestUtilization.vue");
+/* harmony import */ var _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_26__ = __webpack_require__(/*! ./views/dashboard/test/TestServiceDelivery */ "./resources/js/views/dashboard/test/TestServiceDelivery.vue");
+/* harmony import */ var _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_27__ = __webpack_require__(/*! ./views/dashboard/test/TestFinancialHealth */ "./resources/js/views/dashboard/test/TestFinancialHealth.vue");
+/* harmony import */ var _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_28__ = __webpack_require__(/*! ./views/dashboard/test/TestUploadData */ "./resources/js/views/dashboard/test/TestUploadData.vue");
+/* harmony import */ var _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_29__ = __webpack_require__(/*! ./views/dashboard/test/TestSettings */ "./resources/js/views/dashboard/test/TestSettings.vue");
+/* harmony import */ var _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_30__ = __webpack_require__(/*! ./views/dashboard/test/TestDataManagement */ "./resources/js/views/dashboard/test/TestDataManagement.vue");
 /**
  * First we will load all of this project's JavaScript dependencies which
  * includes Vue and other libraries. It is a great starting point when
@@ -93596,6 +93551,7 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 
 
+
  // load these modules as your need
 
 
@@ -93606,11 +93562,12 @@ window.Vue = __webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.common.
 
 
 
-Vue.filter('numFormat', vue_filter_number_format__WEBPACK_IMPORTED_MODULE_11___default.a);
+Vue.filter('numFormat', vue_filter_number_format__WEBPACK_IMPORTED_MODULE_12___default.a);
 Vue.use(vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]);
 Vue.use(bootstrap_vue__WEBPACK_IMPORTED_MODULE_1___default.a);
-Vue.component('v-select', vue_select__WEBPACK_IMPORTED_MODULE_4___default.a);
+Vue.component('v-select', vue_select__WEBPACK_IMPORTED_MODULE_5___default.a);
 Vue.use(vue_numeric__WEBPACK_IMPORTED_MODULE_3___default.a);
+Vue.use(vue_loading_overlay__WEBPACK_IMPORTED_MODULE_4___default.a);
 Vue.use(highcharts_vue__WEBPACK_IMPORTED_MODULE_2___default.a);
 /**
  * The following block of code may be used to automatically register your
@@ -93625,7 +93582,9 @@ Vue.use(highcharts_vue__WEBPACK_IMPORTED_MODULE_2___default.a);
 
 
 
+
 Vue.component('top-bar', __webpack_require__(/*! ./components/menus/TopBar.vue */ "./resources/js/components/menus/TopBar.vue")["default"]);
+Vue.component('loading', vue_loading_overlay__WEBPACK_IMPORTED_MODULE_4___default.a);
 
 
 
@@ -93648,63 +93607,63 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]({
   routes: [{
     path: '',
     name: 'enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
+    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_18__["default"]
   }, {
     path: 'enrollment',
     name: 'enrollment',
-    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_16__["default"]
+    component: _views_dashboard_Enrollment__WEBPACK_IMPORTED_MODULE_18__["default"]
   }, {
     path: 'utilization',
     name: 'utilization',
-    component: _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_17__["default"]
+    component: _views_dashboard_Utilization__WEBPACK_IMPORTED_MODULE_19__["default"]
   }, {
     path: 'service-delivery',
     name: 'serviceDelivery',
-    component: _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_18__["default"]
+    component: _views_dashboard_ServiceDelivery__WEBPACK_IMPORTED_MODULE_20__["default"]
   }, {
     path: 'financial-health',
     name: 'financialHealth',
-    component: _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_19__["default"]
+    component: _views_dashboard_FinancialHealth__WEBPACK_IMPORTED_MODULE_21__["default"]
   }, {
     path: 'upload-data',
     name: 'uploadData',
-    component: _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_20__["default"]
+    component: _views_dashboard_UploadData__WEBPACK_IMPORTED_MODULE_22__["default"]
   }, {
     path: 'settings',
     name: "settings",
-    component: _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_21__["default"]
+    component: _views_dashboard_Settings__WEBPACK_IMPORTED_MODULE_23__["default"]
   }, {
     path: '/test/',
     name: 'test.enrollment',
-    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__["default"]
+    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_24__["default"]
   }, {
     path: '/test/enrollment',
     name: 'test.enrollment',
-    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_22__["default"]
+    component: _views_dashboard_test_TestEnrollment__WEBPACK_IMPORTED_MODULE_24__["default"]
   }, {
     path: '/test/utilization',
     name: 'test.utilization',
-    component: _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_23__["default"]
+    component: _views_dashboard_test_TestUtilization__WEBPACK_IMPORTED_MODULE_25__["default"]
   }, {
     path: '/test/service-delivery',
     name: 'test.serviceDelivery',
-    component: _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_24__["default"]
+    component: _views_dashboard_test_TestServiceDelivery__WEBPACK_IMPORTED_MODULE_26__["default"]
   }, {
     path: '/test/financial-health',
     name: 'test.financialHealth',
-    component: _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_25__["default"]
+    component: _views_dashboard_test_TestFinancialHealth__WEBPACK_IMPORTED_MODULE_27__["default"]
   }, {
     path: '/test/upload-data',
     name: 'test.uploadData',
-    component: _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_26__["default"]
+    component: _views_dashboard_test_TestUploadData__WEBPACK_IMPORTED_MODULE_28__["default"]
   }, {
     path: '/test/settings',
     name: "test.settings",
-    component: _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_27__["default"]
+    component: _views_dashboard_test_TestSettings__WEBPACK_IMPORTED_MODULE_29__["default"]
   }, {
     path: '/test/data/management',
     name: 'test.datamanagement',
-    component: _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_28__["default"]
+    component: _views_dashboard_test_TestDataManagement__WEBPACK_IMPORTED_MODULE_30__["default"]
   }]
 });
 /**
@@ -93716,7 +93675,7 @@ var router = new vue_router__WEBPACK_IMPORTED_MODULE_0__["default"]({
 var app = new Vue({
   el: '#app',
   components: {
-    App: _views_App__WEBPACK_IMPORTED_MODULE_14__["default"]
+    App: _views_App__WEBPACK_IMPORTED_MODULE_16__["default"]
   },
   router: router
 });
@@ -94873,14 +94832,15 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************************************************!*\
   !*** ./resources/js/views/dashboard/test/TestUtilization.vue ***!
   \***************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TestUtilization_vue_vue_type_template_id_463f54ed___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TestUtilization.vue?vue&type=template&id=463f54ed& */ "./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=template&id=463f54ed&");
 /* harmony import */ var _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TestUtilization.vue?vue&type=script&lang=js& */ "./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=script&lang=js&");
-/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
+/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -94910,7 +94870,7 @@ component.options.__file = "resources/js/views/dashboard/test/TestUtilization.vu
 /*!****************************************************************************************!*\
   !*** ./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=script&lang=js& ***!
   \****************************************************************************************/
-/*! exports provided: default */
+/*! no static exports found */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";

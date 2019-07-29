@@ -1,5 +1,6 @@
 <template>
 	<div>
+		<loading :active.sync="isLoading" color="#2196F3" :can-cancel="false" :is-full-page="fullPage"></loading>
 		<div class="header-body mb-3">
 			<div class="row align-items-end">
 				<div class="col">
@@ -166,7 +167,7 @@
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area 2018</small>
-								<small><strong class="text-success text-bold">{{ totalReferrals }}</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ totalReferrals | numFormat }}</strong> per 1000 visits</small>
 							</li>
 						</ul>
 					</div>
@@ -208,17 +209,17 @@
 						<ul class="list-group list-group-flush">
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Average LOS in pilot area (selected above)</small>
-								<small><strong class="text-success text-bold">2</strong> bed days</small>
+								<small><strong class="text-success text-bold">{{ data.losData.average | numFormat }}</strong> bed days</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in non-pilot area</small>
-								<small><strong class="text-success text-bold">10</strong> bed days</small>
+								<small><strong class="text-success text-bold">0</strong> bed days</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area 2018</small>
-								<small><strong class="text-danger text-bold">15</strong> bed days</small>
+								<small><strong class="text-danger text-bold">{{ data.losData.average | numFormat }}</strong> bed days</small>
 							</li>
 						</ul>
 					</div>
@@ -235,10 +236,10 @@
 								</tr>
 							</thead>
 							<tbody class="list">
-								<tr v-for = "facility in data.referralFacilities">
-									<td>{{ facility.name }}</td>
+								<tr v-for = "facility in data.losData.data">
+									<td>{{ facility.facility_name }}</td>
 									<td>{{ facility.county }}</td>
-									<td>{{ facility.level }}</td>
+									<td>{{ facility.facility_level }}</td>
 									<td>{{ facility.los }}</td>
 								</tr>
 							</tbody>
@@ -258,6 +259,9 @@
 				orange: "#ed7d31"
 			};
 			return {
+				loadingNumber: 0,
+				isLoading: false,
+				fullPage: true,
 				options: [
 					{ value: '', text: 'National' },
 				],
@@ -271,252 +275,39 @@
 					opdFacilityLevelData: [],
 					ipdFacilityLevelData: [],
 					referralData: [],
+					losData: [],
 					opdUtilization: [],
 					ipdUtilization: [],
 					ipdSectorUtilization: [],
 					opdSectorUtilization: [],
-					referralFacilities: [
-						{
-							name: "CHANDARIA DISPENSARY",
-							county: "Nairobi",
-							level: "Level 2",
-							rate: 100,
-							los: 15
-						},
-						{
-							name: "SINGIRAINE DISPENSARY",
-							county: "Kajiado",
-							level: "Level 3",
-							rate: 100,
-							los: 14
-						},
-						{
-							name: "GATUANYAGA DISPENSARY",
-							county: "Kiambu",
-							level: "Level 2",
-							rate: 97,
-							los: 14
-						},
-						{
-							name: "TAWFIQ HOSPITAL",
-							county: "Kilifi",
-							level: "Level 4",
-							rate: 93,
-							los: 11
-						},
-						{
-							name: "KILIMANGODO DISPENSARY",
-							county: "Kwale",
-							level: "Level 2",
-							rate: 75,
-							los: 11
-						},
-						{
-							name: "ESHU DISPENSARY",
-							county: "Kwale",
-							level: "Level 2",
-							rate: 75,
-							los: 9
-						},
-						{
-							name: "IKULU DISPENSARY",
-							county: "Machakos",
-							level: "Level 2",
-							rate: 73,
-							los: 9
-						},
-						{
-							name: "KYUASINI HEALTH CENTRE",
-							county: "Makueni",
-							level: "Level 3",
-							rate: 70,
-							los: 9
-						},
-						{
-							name: "KONGOWEA HEALTH CENTRE",
-							county: "Mombasa",
-							level: "Level 3",
-							rate: 66,
-							los: 8
-						},
-						{
-							name: "KARURA DISPENSARY",
-							county: "Nakuru",
-							level: "Level 2",
-							rate: 51,
-							los: 8
-						}
-					]
-				},
-				opdUtilization: {
-					nonPilot: {
-						chart: {
-					        plotBackgroundColor: null,
-					        plotBorderWidth: null,
-					        plotShadow: false,
-					        type: 'pie'
-					    },
-					    title: {
-					        text: 'Non-Pilot Area (Average)'
-					    },
-					    tooltip: {
-					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-					    },
-					    plotOptions: {
-					        pie: {
-					            allowPointSelect: true,
-					            cursor: 'pointer',
-					            dataLabels: {
-					                enabled: false
-					            },
-					            showInLegend: true
-					        }
-					    },
-					    series: [{
-					        name: 'Non-Pilot Area (Average)',
-					        colorByPoint: true,
-					        data: [{
-					            name: 'Public',
-					            y: 61.41,
-					            color: colors.blue
-					        }, {
-					            name: 'Private',
-					            y: 11.84,
-					            color: colors.orange
-					        }]
-					    }]
-					},
-					pilot: {
-						chart: {
-					        plotBackgroundColor: null,
-					        plotBorderWidth: null,
-					        plotShadow: false,
-					        type: 'pie'
-					    },
-					    title: {
-					        text: 'Pilot'
-					    },
-					    tooltip: {
-					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-					    },
-					    plotOptions: {
-					        pie: {
-					            allowPointSelect: true,
-					            cursor: 'pointer',
-					            dataLabels: {
-					                enabled: false
-					            },
-					            showInLegend: true
-					        }
-					    },
-					    series: [{
-					        name: 'Pilot',
-					        colorByPoint: true,
-					        data: [{
-					            name: 'Public',
-					            y: 1000,
-					            color: colors.blue
-					        }, {
-					            name: 'Private',
-					            y: 200,
-					            color: colors.orange
-					        }]
-					    }]
-					}
-				},
-				ipdUtilization: {
-					nonPilot: {
-						chart: {
-					        plotBackgroundColor: null,
-					        plotBorderWidth: null,
-					        plotShadow: false,
-					        type: 'pie'
-					    },
-					    title: {
-					        text: 'Non-Pilot Area (Average)'
-					    },
-					    tooltip: {
-					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-					    },
-					    plotOptions: {
-					        pie: {
-					            allowPointSelect: true,
-					            cursor: 'pointer',
-					            dataLabels: {
-					                enabled: false
-					            },
-					            showInLegend: true
-					        }
-					    },
-					    series: [{
-					        name: 'Non-Pilot Area (Average)',
-					        colorByPoint: true,
-					        data: [{
-					            name: 'Public',
-					            y: 61.41,
-					            color: colors.blue
-					        }, {
-					            name: 'Private',
-					            y: 11.84,
-					            color: colors.orange
-					        }]
-					    }]
-					},
-					pilot: {
-						chart: {
-					        plotBackgroundColor: null,
-					        plotBorderWidth: null,
-					        plotShadow: false,
-					        type: 'pie'
-					    },
-					    title: {
-					        text: 'Pilot'
-					    },
-					    tooltip: {
-					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
-					    },
-					    plotOptions: {
-					        pie: {
-					            allowPointSelect: true,
-					            cursor: 'pointer',
-					            dataLabels: {
-					                enabled: false
-					            },
-					            showInLegend: true
-					        }
-					    },
-					    series: [{
-					        name: 'Pilot',
-					        colorByPoint: true,
-					        data: [{
-					            name: 'Public',
-					            y: 1000,
-					            color: colors.blue
-					        }, {
-					            name: 'Private',
-					            y: 200,
-					            color: colors.orange
-					        }]
-					    }]
-					}
+					
 				}
 			}
 		},
 		created(){
 			this.getCountyPopulation(this.selected);
+			this.getIPDOPDPilotCountyDetails(this.selected)
+			this.getOPDLevelofFacilityDetails(0)
+			this.getIPDLevelofFacilityDetails(0)
 			this.getPilotAreas();
-			this.getFacilityReferrals();
-			this.getUtilizationSectorData();
+			this.getFacilityReferrals(this.selected);
+			this.getUtilizationSectorData(this.selected);
+			this.getFacilityLOS(this.selected)
 		},
 		methods: {
-			getUtilizationSectorData(){
-				axios.get('/api/data/utilization/sector/opd-ipd')
+			getUtilizationSectorData(county_id){
+				this.loadingNumber++
+				var c_id = (county_id == "") ? 0 : county_id;
+				axios.get(`/api/data/utilization/sector/opd-ipd/${c_id}`)
 				.then((res) => {
 					this.data.ipdSectorUtilization = res.data[0]
 					this.data.opdSectorUtilization = res.data[1]
+
+					this.loadingNumber--
 				});
 			},
 			getPilotAreas: function(){
+				this.loadingNumber++
 				axios.get('/api/counties/pilot')
 				.then((res) => {
 					var options = _.map(res.data, (o) => {
@@ -525,44 +316,72 @@
 
 					var merge =this.options.concat(options)
 					this.options = merge
+
+					this.loadingNumber--
 				});
 			},
 			getIPDOPDPilotCountyDetails(county_id){
+				this.loadingNumber++
 				axios.post('/api/data/counties/pilot/opd-ipd', { id: county_id })
 				.then((res) => {
 					this.data.opdIpdData = res.data
+					this.loadingNumber--
 				})
 			},
 
 			getOPDLevelofFacilityDetails(county_id){
-				axios.post('/api/data/counties/facility/level/opd', { id: county_id })
+				this.loadingNumber++
+				var c_id = (county_id == "") ? 0 : county_id
+				axios.post('/api/data/counties/facility/level/opd', { id: c_id })
 				.then((res) => {
 					this.data.opdFacilityLevelData = res.data
+					this.loadingNumber--
 				})
 			},
 
 			getIPDLevelofFacilityDetails(county_id){
-				axios.post('/api/data/counties/facility/level/ipd', { id: county_id })
+				this.loadingNumber++
+				var c_id = (county_id == "") ? 0 : county_id
+				axios.post('/api/data/counties/facility/level/ipd', { id: c_id })
 				.then((res) => {
 					this.data.ipdFacilityLevelData = res.data
+					this.loadingNumber--
 				})
 			},
 
 			getCountyPopulation(val){
+				this.loadingNumber++
 				if(val == ""){
 					val = 'national'
 				}
 				axios.get(`/api/data/counties/population?q=${val}`)
 				.then((res) => {
 					this.data.population = res.data
+					this.loadingNumber--
 				})
 			},
 
-			getFacilityReferrals(){
-				axios.get('/api/data/referrals')
+			getFacilityReferrals(county_id){
+				this.loadingNumber++
+				var c_id = (county_id == "") ? 0 : county_id;
+
+				axios.get(`/api/data/referrals/${c_id}`)
 				.then((res) => {
 					var _data = _.orderBy(res.data, ['referrals'], ['desc'])
 					this.data.referralData = _data
+					this.loadingNumber--
+				});
+			},
+
+			getFacilityLOS(county_id){
+				this.loadingNumber++
+				var c_id = (county_id == "") ? 0 : county_id;
+
+				axios.get(`/api/data/los/${c_id}`)
+				.then((res) => {
+					// var _data = _.orderBy(res.data, ['referrals'], ['desc'])
+					this.data.losData = res.data
+					this.loadingNumber--
 				});
 			}
 		},
@@ -572,14 +391,28 @@
 				this.getIPDOPDPilotCountyDetails(val)
 				this.getOPDLevelofFacilityDetails(val)
 				this.getIPDLevelofFacilityDetails(val)
+				this.getUtilizationSectorData(val)
+				this.getFacilityReferrals(val)
+				this.getFacilityLOS(val)
+			},
+			loadingNumber: function(val){
+				if (val > 0) {
+					this.isLoading = true
+				}else{
+					this.isLoading = false
+				}
 			}
 		},
 		computed: {
 			totalReferrals: function(){
 				return _.sumBy(this.data.referralData, 'referrals')
 			},
+			referralRate: function(){
+				// return (1000 * this.totalReferrals) / ()
+			},
 			top10referrals: function(){
-				return this.data.referralData.slice(0, 10);
+				var top = this.data.referralData.slice(0, 10)
+				return top;
 			},
 			ipdSectorUtilizationGraphs: function(){
 				var charts = {}

@@ -14,6 +14,7 @@ import VueRouter from 'vue-router'
 import BootstrapVue from 'bootstrap-vue'
 import HighchartsVue from 'highcharts-vue';
 import VueNumeric from 'vue-numeric'
+import VueLoading from 'vue-loading-overlay'
 
 import vSelect from 'vue-select'
 
@@ -35,7 +36,7 @@ Vue.use(VueRouter)
 Vue.use(BootstrapVue)
 Vue.component('v-select', vSelect)
 Vue.use(VueNumeric)
-
+Vue.use(VueLoading)
 Vue.use(HighchartsVue);
 /**
  * The following block of code may be used to automatically register your
@@ -52,8 +53,11 @@ Vue.use(HighchartsVue);
 
 import '../../public/dashboard/fonts/feather/feather.min.css'
 import '../../public/dashboard/css/theme.min.css'
+import "vue-loading-overlay/dist/vue-loading.css"
 
 Vue.component('top-bar', require('./components/menus/TopBar.vue').default)
+Vue.component('loading', VueLoading)
+
 
 import App from './views/App'
 import Home from './views/dashboard/Home'

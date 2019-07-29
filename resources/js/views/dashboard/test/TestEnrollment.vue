@@ -229,6 +229,9 @@
 				    title: {
 				        text: 'Age Distribution of Enrolled Population'
 				    },
+				    subtitle: {
+				    	text: 'Data from 2009 Census'
+				    },
 				    xAxis: {
 				        categories: categories,
 				        crosshair: true
@@ -242,7 +245,7 @@
 				    tooltip: {
 				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+				            '<td style="padding:0"><b>{point.y}</b></td></tr>',
 				        footerFormat: '</table>',
 				        shared: true,
 				        useHTML: true
@@ -267,6 +270,8 @@
 				}
 			},
 			genderDistribution: function(){
+				var femalesTotal = _.sumBy(this.data.pyramid, 'female')
+				var malesTotal = _.sumBy(this.data.pyramid, 'male')
 				return { 
 					enrolled: {
 						chart: {
@@ -315,6 +320,9 @@
 					    title: {
 					        text: 'Total Population'
 					    },
+					    subtitle: {
+					    	text: 'Data from 2009 Census'
+					    },
 					    tooltip: {
 					        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
 					    },
@@ -333,11 +341,11 @@
 					        colorByPoint: true,
 					        data: [{
 					            name: 'Male',
-					            y: 35,
+					            y: malesTotal,
 					            color: this.colors.blue
 					        }, {
 					            name: 'Female',
-					            y: 65,
+					            y: femalesTotal,
 					            color: this.colors.orange
 					        }]
 					    }]
