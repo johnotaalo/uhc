@@ -163,8 +163,11 @@
 		},
 		computed: {
 			geographicalDistribution: function(){
-				var totalUrban = parseInt(this.data.geographicalDistribution.urban);
-				var totalRural = parseInt(this.data.geographicalDistribution.rural);
+				var totalUrbanPercentage = parseInt(this.data.geographicalDistribution.urban);
+				var totalRuralPercentage = parseInt(this.data.geographicalDistribution.rural);
+
+				var totalUrban = ( (totalUrbanPercentage * this.data.population) / 100 );
+				var totalRural = ( (totalRuralPercentage * this.data.population) / 100 );
 
 				return {
 					chart: {
@@ -189,9 +192,9 @@
 				    tooltip: {
 				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+				            '<td style="padding:0"><b>{point.y}</b></td></tr>',
 				        footerFormat: '</table>',
-				        shared: true,
+				        shared: false,
 				        useHTML: true
 				    },
 				    plotOptions: {
@@ -239,7 +242,7 @@
 				    yAxis: {
 				        min: 0,
 				        title: {
-				            text: 'Percentage'
+				            text: 'Population'
 				        }
 				    },
 				    tooltip: {

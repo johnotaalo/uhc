@@ -1,6 +1,8 @@
 <template>
 	<div>
-		<loading :active.sync="isLoading" color="#2196F3" :can-cancel="false" :is-full-page="fullPage"></loading>
+		<loading :active.sync="isLoading" color="#2196F3" :can-cancel="false" :is-full-page="fullPage">
+			<!-- <slot type="after"><h2>Loading...</h2></slot> -->
+		</loading>
 		<div class="header-body mb-3">
 			<div class="row align-items-end">
 				<div class="col">
@@ -157,7 +159,7 @@
 						<ul class="list-group list-group-flush">
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area</small>
-								<small><strong class="text-success text-bold">{{ totalReferrals | numFormat }}</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ referralRate | numFormat }}</strong> per 1000 visits</small>
 							</li>
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
@@ -167,7 +169,7 @@
 
 							<li class="list-group-item d-flex align-items-center justify-content-between px-0">
 								<small>Rate of referrals in pilot area 2018</small>
-								<small><strong class="text-success text-bold">{{ totalReferrals | numFormat }}</strong> per 1000 visits</small>
+								<small><strong class="text-success text-bold">{{ referralRate | numFormat }}</strong> per 1000 visits</small>
 							</li>
 						</ul>
 					</div>
@@ -188,7 +190,7 @@
 									<td>{{ facility.facility_name }}</td>
 									<td>{{ facility.county }}</td>
 									<td>{{ facility.facility_level }}</td>
-									<td>{{ facility.referrals }}</td>
+									<td>{{ (facility.referrals * 1000) / data.opdIpdData.opd | numFormat }}</td>
 								</tr>
 							</tbody>
 						</table>
@@ -408,7 +410,8 @@
 				return _.sumBy(this.data.referralData, 'referrals')
 			},
 			referralRate: function(){
-				// return (1000 * this.totalReferrals) / ()
+				var opdNumbers = (this.selected == "") ? (this.data.opdIpdData.opd / 4) : this.data.opdIpdData.opd
+				return (1000 * this.totalReferrals) / opdNumbers
 			},
 			top10referrals: function(){
 				var top = this.data.referralData.slice(0, 10)
@@ -519,6 +522,18 @@
 				return charts
 			},
 			opdIpd: function(){
+				var pilotCountiesData = {}
+				pilotCountiesData['opd'] = (this.selected == "") ?  (this.data.opdIpdData.opd / 4) : this.data.opdIpdData.opd
+				pilotCountiesData['ipd'] = (this.selected == "") ?  (this.data.opdIpdData.ipd / 4) : this.data.opdIpdData.ipd
+
+				var pilotData  = [];
+				var nonPilotData = [];
+				pilotData.push(pilotCountiesData['opd'])
+				pilotData.push(pilotCountiesData['ipd'])
+
+				nonPilotData.push(0)
+				nonPilotData.push(0)
+
 				return {
 					chart: {
 				        type: 'column'
@@ -536,8 +551,16 @@
 				    yAxis: {
 				        min: 0,
 				        title: {
-				            text: 'Percentage'
+				            text: 'Population'
 				        }
+				    },
+				    tooltip: {
+				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+				            '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
+				        footerFormat: '</table>',
+				        shared: true,
+				        useHTML: true
 				    },
 				    plotOptions: {
 				        column: {
@@ -547,12 +570,12 @@
 				    },
 				    series: [{
 				        name: 'Pilot Area',
-				        data: [(parseInt(this.data.opdIpdData.opd) / this.data.population) * 100, (parseInt(this.data.opdIpdData.ipd) / this.data.population) * 100],
+				        data: pilotData,
 				        color: this.colors.blue
 
 				    }, {
 				        name: 'Non-Pilot Area (Average)',
-				        data: [0, 0],
+				        data: nonPilotData,
 				        color: this.colors.orange
 
 				    }]
@@ -591,7 +614,7 @@
 				    tooltip: {
 				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+				            '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
 				        footerFormat: '</table>',
 				        shared: true,
 				        useHTML: true
@@ -648,7 +671,7 @@
 				    tooltip: {
 				        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
 				        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-				            '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+				            '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
 				        footerFormat: '</table>',
 				        shared: true,
 				        useHTML: true

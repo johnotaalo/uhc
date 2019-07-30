@@ -4831,8 +4831,10 @@ __webpack_require__.r(__webpack_exports__);
   },
   computed: {
     geographicalDistribution: function geographicalDistribution() {
-      var totalUrban = parseInt(this.data.geographicalDistribution.urban);
-      var totalRural = parseInt(this.data.geographicalDistribution.rural);
+      var totalUrbanPercentage = parseInt(this.data.geographicalDistribution.urban);
+      var totalRuralPercentage = parseInt(this.data.geographicalDistribution.rural);
+      var totalUrban = totalUrbanPercentage * this.data.population / 100;
+      var totalRural = totalRuralPercentage * this.data.population / 100;
       return {
         chart: {
           type: 'column'
@@ -4852,9 +4854,9 @@ __webpack_require__.r(__webpack_exports__);
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} %</b></td></tr>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y}</b></td></tr>',
           footerFormat: '</table>',
-          shared: true,
+          shared: false,
           useHTML: true
         },
         plotOptions: {
@@ -4900,7 +4902,7 @@ __webpack_require__.r(__webpack_exports__);
         yAxis: {
           min: 0,
           title: {
-            text: 'Percentage'
+            text: 'Population'
           }
         },
         tooltip: {
@@ -6436,6 +6438,8 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
 /* harmony default export */ __webpack_exports__["default"] = ({
   data: function data() {
     var colors = {
@@ -6603,7 +6607,9 @@ __webpack_require__.r(__webpack_exports__);
     totalReferrals: function totalReferrals() {
       return _.sumBy(this.data.referralData, 'referrals');
     },
-    referralRate: function referralRate() {// return (1000 * this.totalReferrals) / ()
+    referralRate: function referralRate() {
+      var opdNumbers = this.selected == "" ? this.data.opdIpdData.opd / 4 : this.data.opdIpdData.opd;
+      return 1000 * this.totalReferrals / opdNumbers;
     },
     top10referrals: function top10referrals() {
       var top = this.data.referralData.slice(0, 10);
@@ -6728,6 +6734,15 @@ __webpack_require__.r(__webpack_exports__);
       return charts;
     },
     opdIpd: function opdIpd() {
+      var pilotCountiesData = {};
+      pilotCountiesData['opd'] = this.selected == "" ? this.data.opdIpdData.opd / 4 : this.data.opdIpdData.opd;
+      pilotCountiesData['ipd'] = this.selected == "" ? this.data.opdIpdData.ipd / 4 : this.data.opdIpdData.ipd;
+      var pilotData = [];
+      var nonPilotData = [];
+      pilotData.push(pilotCountiesData['opd']);
+      pilotData.push(pilotCountiesData['ipd']);
+      nonPilotData.push(0);
+      nonPilotData.push(0);
       return {
         chart: {
           type: 'column'
@@ -6742,8 +6757,15 @@ __webpack_require__.r(__webpack_exports__);
         yAxis: {
           min: 0,
           title: {
-            text: 'Percentage'
+            text: 'Population'
           }
+        },
+        tooltip: {
+          headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
+          footerFormat: '</table>',
+          shared: true,
+          useHTML: true
         },
         plotOptions: {
           column: {
@@ -6753,11 +6775,11 @@ __webpack_require__.r(__webpack_exports__);
         },
         series: [{
           name: 'Pilot Area',
-          data: [parseInt(this.data.opdIpdData.opd) / this.data.population * 100, parseInt(this.data.opdIpdData.ipd) / this.data.population * 100],
+          data: pilotData,
           color: this.colors.blue
         }, {
           name: 'Non-Pilot Area (Average)',
-          data: [0, 0],
+          data: nonPilotData,
           color: this.colors.orange
         }]
       };
@@ -6794,7 +6816,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
           useHTML: true
@@ -6848,7 +6870,7 @@ __webpack_require__.r(__webpack_exports__);
         },
         tooltip: {
           headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y:.1f} Patients</b></td></tr>',
+          pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' + '<td style="padding:0"><b>{point.y} Patients</b></td></tr>',
           footerFormat: '</table>',
           shared: true,
           useHTML: true
@@ -77882,7 +77904,7 @@ var render = function() {
                     _vm._v(" "),
                     _c("small", [
                       _c("strong", { staticClass: "text-success text-bold" }, [
-                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
+                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.referralRate)))
                       ]),
                       _vm._v(" per 1000 visits")
                     ])
@@ -77904,7 +77926,7 @@ var render = function() {
                     _vm._v(" "),
                     _c("small", [
                       _c("strong", { staticClass: "text-success text-bold" }, [
-                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.totalReferrals)))
+                        _vm._v(_vm._s(_vm._f("numFormat")(_vm.referralRate)))
                       ]),
                       _vm._v(" per 1000 visits")
                     ])
@@ -77941,7 +77963,16 @@ var render = function() {
                         _vm._v(" "),
                         _c("td", [_vm._v(_vm._s(facility.facility_level))]),
                         _vm._v(" "),
-                        _c("td", [_vm._v(_vm._s(facility.referrals))])
+                        _c("td", [
+                          _vm._v(
+                            _vm._s(
+                              _vm._f("numFormat")(
+                                (facility.referrals * 1000) /
+                                  _vm.data.opdIpdData.opd
+                              )
+                            )
+                          )
+                        ])
                       ])
                     }),
                     0
@@ -94832,15 +94863,14 @@ __webpack_require__.r(__webpack_exports__);
 /*!***************************************************************!*\
   !*** ./resources/js/views/dashboard/test/TestUtilization.vue ***!
   \***************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _TestUtilization_vue_vue_type_template_id_463f54ed___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./TestUtilization.vue?vue&type=template&id=463f54ed& */ "./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=template&id=463f54ed&");
 /* harmony import */ var _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./TestUtilization.vue?vue&type=script&lang=js& */ "./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=script&lang=js&");
-/* harmony reexport (unknown) */ for(var __WEBPACK_IMPORT_KEY__ in _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__) if(__WEBPACK_IMPORT_KEY__ !== 'default') (function(key) { __webpack_require__.d(__webpack_exports__, key, function() { return _TestUtilization_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__[key]; }) }(__WEBPACK_IMPORT_KEY__));
-/* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
 
 
 
@@ -94870,7 +94900,7 @@ component.options.__file = "resources/js/views/dashboard/test/TestUtilization.vu
 /*!****************************************************************************************!*\
   !*** ./resources/js/views/dashboard/test/TestUtilization.vue?vue&type=script&lang=js& ***!
   \****************************************************************************************/
-/*! no static exports found */
+/*! exports provided: default */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
